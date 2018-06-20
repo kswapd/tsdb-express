@@ -2,6 +2,7 @@ package com.dcits.tsdb.utils;
 
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
+import com.dcits.tsdb.annotations.Tag;
 import com.dcits.tsdb.exceptions.InfluxDBMapperException;
 import java.lang.reflect.Field;
 
@@ -14,12 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import org.influxdb.dto.QueryResult;
+import org.springframework.stereotype.Component;
 
 /**
  * Main class responsible for mapping a QueryResult to a POJO.
  *
  * @author kongxiangwen
  */
+
+@Component("influxDBWrapper")
 public class InfluxDBResultMapper {
 
 	/**
@@ -161,6 +165,11 @@ public class InfluxDBResultMapper {
 				Column colAnnotation = field.getAnnotation(Column.class);
 				if (colAnnotation != null) {
 					influxColumnAndFieldMap.put(colAnnotation.name(), field);
+				}
+
+				Tag tagAnnotation = field.getAnnotation(Tag.class);
+				if (tagAnnotation != null) {
+					influxColumnAndFieldMap.put(tagAnnotation.name(), field);
 				}
 			}
 		}

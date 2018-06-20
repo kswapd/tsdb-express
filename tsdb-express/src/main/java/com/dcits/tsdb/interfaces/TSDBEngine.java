@@ -11,4 +11,5 @@ public interface TSDBEngine {
 	void write(Point data);
 	QueryResult query(String queryLang);
 	<T> List<T> queryPOJOs(String queryLang, final Class<T> clazz);
+	<T> void writePOJO(T pojo);
 }

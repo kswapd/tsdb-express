@@ -23,13 +23,23 @@ public class Application {
 			int randSys = (int)(Math.random()*10);
 			int randDiskUsed = (int)(Math.random()*50);
 			int randDiskFree = (int)(Math.random()*50);
-			engine.write(Point.measurement("cpu")
-					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+
+			/*Point.Builder pp = Point.measurement("cpu");
+			pp = pp.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
 					.addField("idle", 90L + randIdle)
 					.addField("user", 9L + randUser)
 					.addField("system", 1L+randSys)
-					.tag("host", "kxw_v2")
-					.build());
+					.tag("host", "kxw_v3");
+			engine.write(pp.build());*/
+
+
+			Cpu cpu = new Cpu();
+			cpu.setHost("kxw_host");
+			cpu.setIdle(90 + randIdle);
+			cpu.setUser(9 + randUser);
+			cpu.setSystem(1 + randSys);
+			engine.writePOJO(cpu);
+
 
 			engine.write(Point.measurement("disk")
 					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
@@ -39,8 +49,8 @@ public class Application {
 					.build());
 			try {
 				List<Cpu> pojoList = engine.queryPOJOs("SELECT * FROM cpu WHERE time > now() - 5s order by time desc limit 10", Cpu.class);
-				for(Cpu cpu:pojoList){
-					System.out.println(cpu.toString());
+				for(Cpu c:pojoList){
+					System.out.println(c.toString());
 				}
 				Thread.sleep(1000);
 			}
