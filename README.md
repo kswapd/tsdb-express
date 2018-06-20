@@ -4,7 +4,7 @@
 ![logo](http://dcits.com/statics/images/dcits/logo.png)
 
 
-##Introduction
+## Introduction
 A time series database middleware to connect InfluxDB.
 
 
@@ -14,7 +14,7 @@ A time series database middleware to connect InfluxDB.
 *  `maven version 3.0+`
 * `Spring Framework 4.0.0 or later`
 
-##Prerequisites
+## Prerequisites
 * Install InfluxDB **version 1.5.2** and chronograf as InfluxDB web UI.
 
 use docker-compose to setup 
