@@ -3,22 +3,21 @@
 -----------
 ![logo](http://dcits.com/statics/images/dcits/logo.png)
 
-
-##Introduction
+## Introduction
 A time series database middleware to connect influxdb.
 
-##Requirement
+## Requirement
 
 *  `JDK version 1.7 or later`
 *  `maven version 3.0+`
 * `Spring Framework 4.0.0 or later`
 
 
-###Compile
+### Compile
 
  `mvn clean install`
  
-###maven import
+### maven import
 ```
 <dependency>
         <groupId>dcits</groupId>
