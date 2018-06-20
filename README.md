@@ -1,6 +1,9 @@
 # TSDB-EXPRESS
 
 -----------
+![logo](http://dcits.com/statics/images/dcits/logo.png)
+
+
 ##Introduction
 A time series database middleware to connect influxdb.
 
