@@ -7,7 +7,8 @@
 ##Introduction
 A time series database middleware to connect InfluxDB.
 
-##Requirement
+
+## Requirement
 
 *  `JDK version 1.7 or later`
 *  `maven version 3.0+`
@@ -45,11 +46,11 @@ use docker-compose to setup
 >CREATE DATABASE "metrics_db3" WITH DURATION 3h REPLICATION 1 NAME "rp_3h"
 ```
 
-###Compile
+### Compile
 
  `mvn clean install`
  
-###maven import
+### maven import
 ```
 <dependency>
         <groupId>dcits</groupId>
