@@ -1,6 +1,11 @@
+package com.dcits.tsdbtest;
+
+import com.dcits.tsdb.annotations.BeanBuilder;
+import com.dcits.tsdb.annotations.BeanMethodBuilder;
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
+import org.springframework.context.annotation.Bean;
 
 /**
  * Created by kongxiangwen on 6/19/18 w:25.
@@ -9,6 +14,7 @@ import com.dcits.tsdb.annotations.Tag;
 
 
 @Measurement(name = "cpu")
+@BeanBuilder
 public class Cpu {
 	@Column(name = "time")
 	private String time;
@@ -30,13 +36,16 @@ public class Cpu {
 		return String.format("cpu info[host = %s]:[time:%s, user:%d, system:%d, idle:%d]", host,time, user,system, idle);
 	}
 
+
 	public String getTime() {
 		return time;
 	}
 
+
 	public void setTime(String time) {
 		this.time = time;
 	}
+
 
 	public String getHost() {
 		return host;

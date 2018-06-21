@@ -5,18 +5,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Created by kongxiangwen on 6/19/18 w:25.
+ * Created by kongxiangwen on 6/21/18 w:25.
  */
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 @Documented
-public @interface Measurement {
-
-	String name();
-
-	TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.CLASS)
+public @interface BeanMethodBuilder {
 }

@@ -1,6 +1,9 @@
+package com.dcits.tsdbtest;
 
 import com.dcits.tsdb.impl.InfluxDBEngine;
 import com.dcits.tsdb.interfaces.TSDBEngine;
+import com.dcits.tsdbtest.Cpu;
+import com.dcits.tsdbtest.CpuBuilder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.influxdb.dto.Point;
@@ -24,6 +27,7 @@ public class Application {
 			int randDiskUsed = (int)(Math.random()*50);
 			int randDiskFree = (int)(Math.random()*50);
 
+			Cpu testcpu = CpuBuilder.aCpu().withHost("dd").withIdle(33).withSystem(33).withUser(22).build();
 			/*Point.Builder pp = Point.measurement("cpu");
 			pp = pp.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
 					.addField("idle", 90L + randIdle)

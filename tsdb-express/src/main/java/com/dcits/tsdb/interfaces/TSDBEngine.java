@@ -8,8 +8,15 @@ import org.influxdb.dto.QueryResult;
  * Created by kongxiangwen on 6/19/18 w:25.
  */
 public interface TSDBEngine {
+	@Deprecated
 	void write(Point data);
+
+	@Deprecated
 	QueryResult query(String queryLang);
+
+
 	<T> List<T> queryPOJOs(String queryLang, final Class<T> clazz);
 	<T> void writePOJO(T pojo);
+
+
 }
