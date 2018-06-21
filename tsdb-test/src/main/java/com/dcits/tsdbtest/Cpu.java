@@ -7,13 +7,14 @@ import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
 import javax.annotation.Resource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by kongxiangwen on 6/19/18 w:25.
  */
 
 
-
+@Component
 @Measurement(name = "cpu")
 @BeanBuilder
 public class Cpu {
@@ -22,7 +23,7 @@ public class Cpu {
 	private String time;
 
 	@Tag(name = "host")
-	private String host;
+	private String host="aaa";
 
 
 	@Column(name = "idle")

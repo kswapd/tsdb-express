@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by kongxiangwen on 6/21/18 w:25.
  */
+
 public final class CpuBuilder {
 	private String time;
 	private String host;

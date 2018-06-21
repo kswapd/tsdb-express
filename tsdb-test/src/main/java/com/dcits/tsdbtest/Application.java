@@ -19,7 +19,8 @@ public class Application {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"tsdb.xml"});
 		context.start();
 		TSDBEngine engine = (InfluxDBEngine)context.getBean("tsdbEngine");
-
+		Cpu cpuAs = (Cpu)context.getBean("cpu");
+		System.out.println(cpuAs.getHost()+"------");
 		while(isStart) {
 			int randIdle = (int)(Math.random()*30);
 			int randUser = (int)(Math.random()*20);
