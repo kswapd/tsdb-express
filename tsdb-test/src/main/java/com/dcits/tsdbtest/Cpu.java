@@ -5,6 +5,7 @@ import com.dcits.tsdb.annotations.BeanMethodBuilder;
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
+import javax.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 @Measurement(name = "cpu")
 @BeanBuilder
 public class Cpu {
+
 	@Column(name = "time")
 	private String time;
 

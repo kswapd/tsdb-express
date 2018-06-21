@@ -1,5 +1,7 @@
 package com.dcits.tsdbtest;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Created by kongxiangwen on 6/21/18 w:25.
  */
@@ -10,7 +12,7 @@ public final class CpuBuilder {
 	private Integer user;
 	private Integer system;
 
-	private CpuBuilder() {
+	public CpuBuilder() {
 	}
 
 	public static CpuBuilder aCpu() {

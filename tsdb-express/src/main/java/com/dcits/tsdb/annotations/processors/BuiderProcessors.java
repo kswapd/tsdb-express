@@ -62,16 +62,16 @@ public class BuiderProcessors  extends AbstractProcessor {
 						.addMethod(main)
 						.build();
 
-				try {
+				/*try {
 					// 生成 com.example.HelloWorld.java
-					JavaFile javaFile = JavaFile.builder("com.example", helloWorld)
+					JavaFile javaFile = JavaFile.builder("com.example2", helloWorld)
 							.addFileComment(" This codes are generated automatically. Do not modify!")
 							.build();
 					//　生成文件
 					javaFile.writeTo(filer);
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+				}*/
 			}
 		}
 		return true;
