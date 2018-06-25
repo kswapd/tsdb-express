@@ -1,21 +1,17 @@
-package com.dcits.tsdb.impl;
+package com.dcits.repo.models;
 
-import com.dcits.tsdb.annotations.BeanBuilder;
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import org.springframework.stereotype.Component;
 
 /**
  * Created by kongxiangwen on 6/19/18 w:25.
  */
 
 
-@Component
 @Measurement(name = "cpu")
-@BeanBuilder
 public class Cpu {
 
 	@Column(name = "time")
@@ -34,10 +30,17 @@ public class Cpu {
 	@Column(name = "system")
 	private Integer system;
 
-	public String toString(){
-		return String.format("cpu info[host = %s]:[time:%s, user:%d, system:%d, idle:%d]", host,time, user,system, idle);
-	}
 
+	@Override
+	public String toString() {
+		return "Cpu{" +
+				"time='" + time + '\'' +
+				", host='" + host + '\'' +
+				", idle=" + idle +
+				", user=" + user +
+				", system=" + system +
+				'}';
+	}
 
 	public String getTime() {
 		return time;

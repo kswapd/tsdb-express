@@ -1,7 +1,6 @@
 package com.dcits.tsdbtest;
 
-import com.dcits.tsdb.impl.Cpu;
-import org.springframework.stereotype.Component;
+import com.dcits.repo.models.Cpu;
 
 /**
  * Created by kongxiangwen on 6/21/18 w:25.

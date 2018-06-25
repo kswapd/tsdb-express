@@ -59,6 +59,7 @@ public class QueryMonitor {
 			timeStat = true;
 		}
 
+		//System.out.println("aspect------:"+methodName);
 		if(timeStat) {
 			start = System.currentTimeMillis();
 		}

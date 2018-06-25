@@ -55,20 +55,12 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	//@Resource(name="influxDBWrapper")
 	private InfluxDBResultMapper influxDBMapper;
 
-
 	private static CustomRepoImpl inst = null;
 	private Class<T> innerClass;
 
-
-
 	public void setInnerClass(Class <T> cls){
-		System.out.println("setInnerClass:::"+cls.getName());
 		innerClass = cls;
 	}
-
-
-
-
 
 
 	public static CustomRepoImpl getInstance()
@@ -108,7 +100,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		}catch (IOException ex) {
 			ex.printStackTrace();
 		}
-		System.out.println("=====++"+prop.getProperty("influxdb.dbName"));
+		//System.out.println("=====++"+prop.getProperty("influxdb.dbName"));
 
 		this.address = prop.getProperty("influxdb.address");
 		this.user = prop.getProperty("influxdb.user");
