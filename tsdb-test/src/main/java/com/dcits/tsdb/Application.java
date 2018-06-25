@@ -1,4 +1,4 @@
-package com.dcits.tsdbtest;
+package com.dcits.tsdb;
 
 
 import com.dcits.repo.interfaces.RepoCpu;
@@ -7,7 +7,6 @@ import com.dcits.repo.models.Cpu;
 import com.dcits.repo.models.Disk;
 import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import java.util.List;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
@@ -49,7 +48,7 @@ public class Application {
 			ds.setFree(210 + randDiskFree);
 			ds.setUsed(300+randDiskUsed);
 
-
+			//ds.setTime;
 			diskExpress.writeBean(ds);
 
 			/*express.write(Point.measurement("disk")
@@ -61,8 +60,8 @@ public class Application {
 
 
 			try {
-				List<Cpu> pojoList = cpuExpress.queryBeans("SELECT * FROM cpu WHERE time > now() - 5s order by time desc limit 3");
-				for(Cpu c:pojoList){
+				List<Cpu> cpuList = cpuExpress.queryBeans("SELECT * FROM cpu WHERE time > now() - 5s order by time desc limit 3");
+				for(Cpu c:cpuList){
 					System.out.println(c.toString());
 				}
 
