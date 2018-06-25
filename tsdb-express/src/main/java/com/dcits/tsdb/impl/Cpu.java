@@ -1,12 +1,11 @@
-package com.dcits.tsdbtest;
+package com.dcits.tsdb.impl;
 
 import com.dcits.tsdb.annotations.BeanBuilder;
-import com.dcits.tsdb.annotations.BeanMethodBuilder;
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
-import javax.annotation.Resource;
-import org.springframework.context.annotation.Bean;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -81,6 +80,27 @@ public class Cpu {
 	public void setSystem(Integer system) {
 		this.system = system;
 	}
+
+
+
+	public Cpu() {
+
+	}
+	public void destroy() throws Exception {
+		System.out.println("cpu destroy called");
+	}
+
+	@PostConstruct
+	public void init(){
+		System.out.println("cpu PostConstruct");
+	}
+
+	@PreDestroy
+	public void preDesstroy()
+	{
+		System.out.println("cpu preDesstroy");
+	}
+
 
 
 	// getters (and setters if you need)

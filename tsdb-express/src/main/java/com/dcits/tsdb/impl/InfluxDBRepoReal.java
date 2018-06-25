@@ -1,13 +1,8 @@
 package com.dcits.tsdb.impl;
 
-import com.dcits.tsdb.annotations.Column;
-import com.dcits.tsdb.annotations.Measurement;
-import com.dcits.tsdb.annotations.Tag;
-import com.dcits.tsdb.interfaces.TSDBEngine;
+import com.dcits.tsdb.interfaces.CustomRepo;
 import com.dcits.tsdb.utils.InfluxDBResultMapper;
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -18,7 +13,6 @@ import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -30,8 +24,8 @@ import org.springframework.stereotype.Repository;
  *
  * @author kongxiangwen
  */
-@Repository("tsdbEngine")
-public class InfluxDBEngine implements TSDBEngine{
+@Repository("tsdbRepo")
+public class InfluxDBRepoReal  {
 
 
 	@Value("${influxdb.address}")
@@ -50,7 +44,7 @@ public class InfluxDBEngine implements TSDBEngine{
 	@Value("${influxdb.maxBatchInterval}")
 	private int maxBatchInterval;
 
-	private static InfluxDBEngine influxDBengine = null;
+	private static InfluxDBRepoReal influxDBengine = null;
 	private  InfluxDB influxDB = null;
 
 
@@ -75,22 +69,22 @@ public class InfluxDBEngine implements TSDBEngine{
 		influxDB.enableBatch(maxBatchSize, maxBatchInterval, TimeUnit.MILLISECONDS);
 	}
 
-	@Override
+
 	public void write(Point data)
 	{
 
 		influxDB.write(dbName, rpName, data);
 	}
 
-	@Override
+
 	public QueryResult query(String queryLang)
 	{
 		QueryResult queryResult = influxDB.query(new Query(queryLang, dbName));
 		return queryResult;
 
 	}
-	@Override
-	public <T> List<T> queryPOJOs(String queryLang, final Class<T> clazz)
+
+	public <T> List<T> queryBeans(String queryLang, final Class<T> clazz)
 	{
 
 
@@ -113,8 +107,8 @@ public class InfluxDBEngine implements TSDBEngine{
 	 * @param pojo
 	 * @param <T>
 	 */
-	@Override
-	public <T> void writePOJO(T pojo)
+
+	public  <T> void writeBean(T pojo)
 	{
 		Point data = null;
 		try {
@@ -125,6 +119,15 @@ public class InfluxDBEngine implements TSDBEngine{
 		}
 		write(data);
 	}
+
+
+
+	public <T> List<T> findByTime(String queryLang, final Class<T> clazz)
+	{
+		return null;
+	}
+
+
 
 
 }

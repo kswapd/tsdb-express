@@ -425,6 +425,8 @@ public class InfluxDBResultMapper {
 
 
 		}
+
+		//kxw todo add time
 		pointBuilder = pointBuilder.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 
 		return pointBuilder.build();

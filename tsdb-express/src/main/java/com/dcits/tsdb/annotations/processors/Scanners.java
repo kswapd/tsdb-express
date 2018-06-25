@@ -27,7 +27,7 @@ public class Scanners implements BeanPostProcessor {
 
 			throws BeansException {
 
-		System.out.println("Initializing " + beanName);
+		System.out.println(beanName + " before initialize");
 
 		for(Annotation annotation: bean.getClass().getAnnotations()){
 			System.out.println(annotation.annotationType().getCanonicalName());
@@ -49,7 +49,7 @@ public class Scanners implements BeanPostProcessor {
 
 			throws BeansException {
 
-		System.out.println(beanName + " initialized");
+		System.out.println(beanName + " after initialize");
 
 		return bean;
 

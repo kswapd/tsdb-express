@@ -1,5 +1,6 @@
 package com.dcits.tsdbtest;
 
+import com.dcits.tsdb.impl.Cpu;
 import org.springframework.stereotype.Component;
 
 /**

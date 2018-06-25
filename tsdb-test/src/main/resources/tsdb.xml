@@ -9,8 +9,8 @@
     http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
-
-    <context:component-scan base-package="com.dcits.tsdb.*, com.dcits.tsdbtest"></context:component-scan>
-    <aop:aspectj-autoproxy />
     <context:property-placeholder location="classpath*:tsdb.properties" />
+    <context:component-scan base-package="com.dcits.tsdb.*, com.dcits.tsdbtest, com.dcits.tsdb.impl"></context:component-scan>
+    <aop:aspectj-autoproxy />
+
 </beans>
