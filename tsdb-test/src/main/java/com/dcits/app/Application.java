@@ -1,4 +1,4 @@
-package com.dcits.tsdb;
+package com.dcits.app;
 
 
 import com.dcits.repo.interfaces.RepoCpu;
