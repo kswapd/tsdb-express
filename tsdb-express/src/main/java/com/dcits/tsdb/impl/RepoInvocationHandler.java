@@ -45,6 +45,16 @@ public class RepoInvocationHandler implements InvocationHandler {
 	}
 
 
+	/**
+	 * Use CustomRepoImpl to proxy user repo interface, as type erasure of generic type class, method.invoke will not find method if
+	 * we use parameter class type, so we convert parameter class type to Object.class if parameters of declared
+	 * method is type 'ParameterizedTypeImpl' or 'TypeVariableImpl'.
+	 * @param proxy  proxy of user declared interface
+	 * @param method the mothod invoked
+	 * @param args	paramters
+	 * @return
+	 * @throws Throwable
+	 */
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
@@ -71,11 +81,14 @@ public class RepoInvocationHandler implements InvocationHandler {
 				//System.out.println("["+args[i].getClass().getName());
 				classArr[i] = args[i].getClass();//Object.class;//
 				//System.out.println("]"+classArr[i].getName());
+				if(typeArr[i].getClass().getName() == "sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl" || typeArr[i].getClass().getName() == "sun.reflect.generics.reflectiveObjects.TypeVariableImpl"){
+					classArr[i] = Object.class;
+				}
 			}
 		}
 
 
-		if(typeArr!=null && typeArr.length > 0) {
+		/*if(typeArr!=null && typeArr.length > 0) {
 			for(int i = 0; i < typeArr.length; i ++){
 				//classArr[i] = Object.class;
 				//System.out.println("[[["+typeArr[i].getClass().getName());
@@ -83,7 +96,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 					classArr[i] = Object.class;
 				}
 			}
-		}
+		}*/
 
 		/*for(int i = 0; i < classArr.length; i ++){
 
