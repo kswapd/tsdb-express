@@ -46,11 +46,13 @@ use docker-compose to setup
 >CREATE DATABASE "metrics_db3" WITH DURATION 3h REPLICATION 1 NAME "rp_3h"
 ```
 
-### Compile
+
+## Compile
 
  `mvn clean install`
  
-### maven import
+
+## maven import
 ```
 <dependency>
         <groupId>dcits</groupId>
@@ -59,7 +61,7 @@ use docker-compose to setup
 </dependency>
 ```
 
-### Development Instructions
+## Development Instructions
 **MUST** follow the instructions of **NOTE** section.
 * Please install `JDK 1.8` before build the project.
 * **MUST NOT** add any domain logics to this project.
