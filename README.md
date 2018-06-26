@@ -63,7 +63,7 @@ use docker-compose to setup
 
 ## Development Instructions
 **MUST** follow the instructions of **NOTE** section.
-* Please install `JDK 1.8` before build the project.
+* Please install `JDK 1.7` before build the project.
 * **MUST NOT** add any domain logics to this project.
 * **MUST NOT** push any jar files, use maven dependency instead.
 * **MUST NOT** push any unnecessary binary files.
