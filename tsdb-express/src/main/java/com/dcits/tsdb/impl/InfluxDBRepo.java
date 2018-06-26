@@ -103,6 +103,11 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 		return pojoList;
 	}
 
+	@Override
+	public List<T> find(String queryLang) {
+		return null;
+	}
+
 
 	/**
 	 * write bean data to influxdb
@@ -130,6 +135,11 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 	@Override
 	public long count() {
 		return 0;
+	}
+
+	@Override
+	public T save(T pojo) {
+		return null;
 	}
 
 

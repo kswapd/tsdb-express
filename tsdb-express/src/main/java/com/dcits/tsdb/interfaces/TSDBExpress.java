@@ -18,15 +18,26 @@ public interface TSDBExpress <T>{
 	/**
 	 * queries by sql like language
 	 * @param queryLang, this is a sql like query language, such as 'select * from cpu limit 10'
-	 * @param clazz, bean class
 	 * @return	bean list
 	 */
+	@Deprecated
 	List<T> queryBeans(String queryLang);
+
+
+	/**
+	 * queries by sql like language
+	 * @param queryLang, this is a sql like query language, such as 'select * from cpu limit 10'
+	 * @return	bean list
+	 */
+	List<T> find(String queryLang);
+
+
 	/*List<T> queryBeans(String queryLang, final Class<T> clazz);*/
 	/**
 	 * insert bean
 	 * @param pojo	write bean to database, the bean property must have annotation @column
 	 */
+	@Deprecated
 	void writeBean(T pojo);
 
 
@@ -41,6 +52,15 @@ public interface TSDBExpress <T>{
 	 * @return
 	 */
 	long count();
+
+
+	/**
+	 * save one bean
+	 * @param pojo
+	 * @return
+	 */
+	T save(T pojo);
+
 
 
 

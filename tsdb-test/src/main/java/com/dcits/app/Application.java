@@ -67,7 +67,8 @@ public class Application {
 
 			//mem.setTime(String.valueOf(System.currentTimeMillis()));
 			mem.setTime(String.valueOf(System.currentTimeMillis()));
-			memExpress.writeBean(mem);
+			//memExpress.writeBean(mem);
+			memExpress.save(mem);
 
 
 			try {
@@ -85,7 +86,7 @@ public class Application {
 				long num = memExpress.count();
 				System.out.println(String.format("%s,%d", o.toString(), num));
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
-				List<Memory> memList = memExpress.queryBeans("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 1h and ip_addr='192.168.1.100' group by time(10m) limit 3");
+				List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 1h and ip_addr='192.168.1.100' group by time(10m) limit 3");
 
 				for(Memory m:memList){
 					System.out.println(m.toString());

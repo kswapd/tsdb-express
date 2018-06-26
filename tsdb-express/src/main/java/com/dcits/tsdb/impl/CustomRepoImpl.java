@@ -138,8 +138,27 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 	}
 	@Override
-	//public List<T> queryBeans(String queryLang, final Class<T> clazz)
 	public List<T> queryBeans(String queryLang)
+	{
+
+
+		QueryResult queryResult = query(queryLang);
+		//InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
+		List<T> pojoList = null;
+
+		try {
+			pojoList = influxDBMapper.toPOJO(queryResult, innerClass);
+		}
+		catch (RuntimeException e){
+
+		}
+
+		return pojoList;
+	}
+
+
+	@Override
+	public List<T> find(String queryLang)
 	{
 
 
@@ -174,6 +193,29 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 			e.printStackTrace();
 		}
 		write(data);
+	}
+
+
+
+
+
+	/**
+	 * write bean data to influxdb
+	 * @param pojo
+	 * @param <T>
+	 */
+	@Override
+	public  T save(T pojo)
+	{
+		Point data = null;
+		try {
+			data = influxDBMapper.pojoToPoint(pojo);
+		}
+		catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		write(data);
+		return pojo;
 	}
 
 	@Override
