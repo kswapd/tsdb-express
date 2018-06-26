@@ -122,6 +122,15 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 		write(data);
 	}
 
+	@Override
+	public T findLastOne() {
+		return null;
+	}
+
+	@Override
+	public long count() {
+		return 0;
+	}
 
 
 	public <T> List<T> findByTime(String queryLang, final Class<T> clazz)

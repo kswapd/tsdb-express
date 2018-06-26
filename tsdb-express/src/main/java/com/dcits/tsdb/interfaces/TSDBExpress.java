@@ -30,6 +30,19 @@ public interface TSDBExpress <T>{
 	void writeBean(T pojo);
 
 
+	/**
+	 * get last tsdb bean from measurement
+	 * @return
+	 */
+	T findLastOne();
+
+	/**
+	 * count all num
+	 * @return
+	 */
+	long count();
+
+
 
 
 
