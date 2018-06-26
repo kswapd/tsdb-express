@@ -3,8 +3,10 @@ package com.dcits.app;
 
 import com.dcits.repo.interfaces.RepoCpu;
 import com.dcits.repo.interfaces.RepoDisks;
+import com.dcits.repo.interfaces.RepoMemory;
 import com.dcits.repo.models.Cpu;
 import com.dcits.repo.models.Disk;
+import com.dcits.repo.models.Memory;
 import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import java.util.List;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -24,7 +26,7 @@ public class Application {
 		//InfluxDBRepoReal express = (InfluxDBRepoReal)context.getBean("tsdbRepo"); okok
 		RepoCpu cpuExpress = (RepoCpu)context.getBean("repoCpu");
 		RepoDisks diskExpress = (RepoDisks)context.getBean("repoDisks");
-
+		RepoMemory memExpress = (RepoMemory)context.getBean("repoMemory");
 		while(isStart) {
 			int randIdle = (int)(Math.random()*30);
 			int randUser = (int)(Math.random()*20);
@@ -56,11 +58,20 @@ public class Application {
 					.addField("used", 80L +randDiskUsed)
 					.addField("free", 300L + randDiskFree)
 					.tag("host", "kxw_v2")
-					.build());*/
+					.build());x*/
+
+
+			Memory mem = new Memory();
+			mem.setIpAddr("192.168.1.100");
+			mem.setPercent(0.55);
+
+			//mem.setTime(String.valueOf(System.currentTimeMillis()));
+			mem.setTime(String.valueOf(System.currentTimeMillis()));
+			memExpress.writeBean(mem);
 
 
 			try {
-				List<Cpu> cpuList = cpuExpress.queryBeans("SELECT * FROM cpu WHERE time > now() - 5s order by time desc limit 3");
+				/*List<Cpu> cpuList = cpuExpress.queryBeans("SELECT * FROM cpu WHERE time > now() - 5s order by time desc limit 3");
 				for(Cpu c:cpuList){
 					System.out.println(c.toString());
 				}
@@ -68,7 +79,15 @@ public class Application {
 				List<Disk> diskList = diskExpress.queryBeans("SELECT * FROM disks WHERE time > now() - 5s order by time desc limit 3");
 				for(Disk d:diskList){
 					System.out.println(d.toString());
+				}*/
+
+
+				List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
+				for(Memory m:memList){
+					System.out.println(m.toString());
 				}
+
+
 
 
 				Thread.sleep(1000);

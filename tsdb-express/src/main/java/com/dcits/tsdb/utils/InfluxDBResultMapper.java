@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.QueryResult;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * Main class responsible for mapping a QueryResult to a POJO.
@@ -153,26 +154,45 @@ public class InfluxDBResultMapper {
 
 	void cacheMeasurementClass(final Class<?>... classVarAgrs) {
 		for (Class<?> clazz : classVarAgrs) {
+
+
+
 			if (CLASS_FIELD_CACHE.containsKey(clazz.getName())) {
 				continue;
 			}
+
+
+
 			ConcurrentMap<String, Field> initialMap = new ConcurrentHashMap<>();
 			ConcurrentMap<String, Field> influxColumnAndFieldMap = CLASS_FIELD_CACHE.putIfAbsent(clazz.getName(), initialMap);
 			if (influxColumnAndFieldMap == null) {
 				influxColumnAndFieldMap = initialMap;
 			}
 
-			for (Field field : clazz.getDeclaredFields()) {
-				Column colAnnotation = field.getAnnotation(Column.class);
-				if (colAnnotation != null) {
-					influxColumnAndFieldMap.put(colAnnotation.name(), field);
+
+
+
+			for (Class<?> clazzParent = clazz; clazzParent != Object.class; clazzParent = clazzParent.getSuperclass()) {
+
+				for (Field field : clazzParent.getDeclaredFields()) {
+					Column colAnnotation = field.getAnnotation(Column.class);
+					if (colAnnotation != null) {
+						influxColumnAndFieldMap.put(colAnnotation.name(), field);
+					}
+
+					Tag tagAnnotation = field.getAnnotation(Tag.class);
+					if (tagAnnotation != null) {
+						influxColumnAndFieldMap.put(tagAnnotation.name(), field);
+					}
 				}
 
-				Tag tagAnnotation = field.getAnnotation(Tag.class);
-				if (tagAnnotation != null) {
-					influxColumnAndFieldMap.put(tagAnnotation.name(), field);
-				}
 			}
+
+
+
+
+
+
 		}
 	}
 
@@ -333,101 +353,112 @@ public class InfluxDBResultMapper {
 	 */
 	public <T> Point pojoToPoint(T pojo) throws IllegalAccessException {
 		Point p = null;
-		Class<?> clazz = pojo.getClass();
+		Class<?> clazzOriginal = pojo.getClass();
 
-		String measurementName = ((Measurement) clazz.getAnnotation(Measurement.class)).name();
+		String measurementName = ((Measurement) clazzOriginal.getAnnotation(Measurement.class)).name();
 		Objects.requireNonNull(measurementName, "measurementName");
 
 		Point.Builder pointBuilder = Point.measurement(measurementName);
 
-		for(Field field : clazz.getDeclaredFields()){
-			Class<?> fieldType = field.getType();
-			Column colAnnotation = field.getAnnotation(Column.class);
 
-			if (!field.isAccessible()) {
-				field.setAccessible(true);
+		for (Class<?> clazz = clazzOriginal; clazz != Object.class; clazz = clazz.getSuperclass()){
+			for (Field field : clazz.getDeclaredFields()) {
+				Class<?> fieldType = field.getType();
+				Column colAnnotation = field.getAnnotation(Column.class);
+
+				if (!field.isAccessible()) {
+					field.setAccessible(true);
+				}
+				if (colAnnotation != null) {
+
+					Object value = field.get(pojo);
+
+					//if is time field
+					if(field.getName().equals("time")){
+						if(!StringUtils.isEmpty(value)) {
+							pointBuilder.time(Long.parseLong(String.valueOf(value)), TimeUnit.MILLISECONDS);
+						}
+					}
+
+
+					if (String.class.isAssignableFrom(fieldType)) {
+						if (value instanceof String) {
+							pointBuilder.addField(colAnnotation.name(), String.valueOf(value));
+						}
+					}
+
+
+					if (double.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Double) {
+							pointBuilder.addField(colAnnotation.name(), ((Double) value).doubleValue());
+						}
+					}
+
+
+					if (long.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Long) {
+							pointBuilder.addField(colAnnotation.name(), ((Long) value).longValue());
+						}
+					}
+					if (int.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Integer) {
+							pointBuilder.addField(colAnnotation.name(), ((Integer) value).intValue());
+						}
+					}
+					if (boolean.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Boolean) {
+							//field.setBoolean(obj, Boolean.valueOf(String.valueOf(value)).booleanValue());
+							pointBuilder.addField(colAnnotation.name(), Boolean.valueOf(String.valueOf(value)).booleanValue());
+						}
+					}
+
+
+					if (Double.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Double) {
+							//field.set(obj, value);
+							pointBuilder.addField(colAnnotation.name(), (Double) value);
+						}
+
+					}
+					if (Long.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Long) {
+							pointBuilder.addField(colAnnotation.name(), Long.valueOf(((Double) value).longValue()));
+						}
+					}
+					if (Integer.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Integer) {
+							pointBuilder.addField(colAnnotation.name(), Integer.valueOf(((Integer) value).intValue()));
+						}
+					}
+					if (Boolean.class.isAssignableFrom(fieldType)) {
+						if (value instanceof Boolean) {
+							pointBuilder.addField(colAnnotation.name(), Boolean.valueOf(String.valueOf(value)));
+						}
+					}
+
+
+				}
+
+
+				Tag tagAnnotation = field.getAnnotation(Tag.class);
+
+				if (tagAnnotation != null) {
+					Object value = field.get(pojo);
+					if (String.class.isAssignableFrom(fieldType)) {
+						if (value instanceof String) {
+							pointBuilder.tag(tagAnnotation.name(), String.valueOf(value));
+						}
+					}
+				}
+
+
 			}
-			if (colAnnotation != null) {
-
-				Object value = field.get(pojo);
-				if (String.class.isAssignableFrom(fieldType)) {
-					if (value instanceof String) {
-						pointBuilder.addField(colAnnotation.name(), String.valueOf(value));
-					}
-				}
-
-
-				if (double.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Double) {
-						pointBuilder.addField(colAnnotation.name(), ((Double) value).doubleValue());
-					}
-				}
-
-
-				if (long.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Long) {
-						pointBuilder.addField(colAnnotation.name(), ((Long) value).longValue());
-					}
-				}
-				if (int.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Integer) {
-						pointBuilder.addField(colAnnotation.name(), ((Integer) value).intValue());
-					}
-				}
-				if (boolean.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Boolean) {
-						//field.setBoolean(obj, Boolean.valueOf(String.valueOf(value)).booleanValue());
-						pointBuilder.addField(colAnnotation.name(), Boolean.valueOf(String.valueOf(value)).booleanValue());
-					}
-				}
-
-
-				if (Double.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Double) {
-						//field.set(obj, value);
-						pointBuilder.addField(colAnnotation.name(), (Double) value);
-					}
-
-				}
-				if (Long.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Long) {
-						pointBuilder.addField(colAnnotation.name(), Long.valueOf(((Double) value).longValue()));
-					}
-				}
-				if (Integer.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Integer) {
-						pointBuilder.addField(colAnnotation.name(), Integer.valueOf(((Integer) value).intValue()));
-					}
-				}
-				if (Boolean.class.isAssignableFrom(fieldType)) {
-					if (value instanceof Boolean) {
-						pointBuilder.addField(colAnnotation.name(), Boolean.valueOf(String.valueOf(value)));
-					}
-				}
-
-
-
-
-			}
-
-
-
-			Tag tagAnnotation = field.getAnnotation(Tag.class);
-
-			if (tagAnnotation != null) {
-				Object value = field.get(pojo);
-				if (String.class.isAssignableFrom(fieldType)) {
-					if (value instanceof String) {
-						pointBuilder.tag(tagAnnotation.name(), String.valueOf(value));
-					}
-				}
-			}
-
-
 		}
 
 		//kxw todo add time
-		pointBuilder = pointBuilder.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+
+		//if()
+		//pointBuilder = pointBuilder.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 
 		return pointBuilder.build();
 	}
