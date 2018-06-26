@@ -63,7 +63,7 @@ public class Application {
 
 			Memory mem = new Memory();
 			mem.setIpAddr("192.168.1.100");
-			mem.setPercent(0.55);
+			mem.setPercent(Math.random());
 
 			//mem.setTime(String.valueOf(System.currentTimeMillis()));
 			mem.setTime(String.valueOf(System.currentTimeMillis()));
@@ -82,7 +82,9 @@ public class Application {
 				}*/
 
 
-				List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
+				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
+				List<Memory> memList = memExpress.queryBeans("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 1h and ip_addr='192.168.1.100' group by time(10m) limit 3");
+
 				for(Memory m:memList){
 					System.out.println(m.toString());
 				}
