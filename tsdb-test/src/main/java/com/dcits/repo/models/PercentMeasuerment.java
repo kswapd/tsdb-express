@@ -12,7 +12,7 @@ public class PercentMeasuerment {
 	@Column(name = "time")
 	protected String time;
 
-	@Tag(name = "ip_addr")
+	@Tag(name = "ipAddr")
 	protected String ipAddr;
 
 

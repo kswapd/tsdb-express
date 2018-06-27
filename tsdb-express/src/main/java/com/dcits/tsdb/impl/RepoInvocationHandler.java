@@ -1,10 +1,13 @@
 package com.dcits.tsdb.impl;
 
+import com.dcits.tsdb.annotations.Measurement;
+import com.dcits.tsdb.utils.JPAConvertor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 /**
  * Created by kongxiangwen on 6/24/18 w:26.
@@ -65,24 +68,29 @@ public class RepoInvocationHandler implements InvocationHandler {
 
 		String methodName = method.getName();
 		Class <?> repoClass = repoImpl.getClass();
-
+		boolean implFoundMethod = false;
+		Method baseQueryMethod = null;
 		for (Method methods:repoClass.getDeclaredMethods()){
 
-			if(methods.getName() == methodName) {
+			if(methods.getName().equals(methodName)) {
 				//System.out.println(methods.getName());
 				typeArr = method.getGenericParameterTypes();
+				implFoundMethod  = true;
 				break;
 			}
 		}
 
-		if(args != null && args.length > 0) {
-			classArr = new Class<?>[args.length];
-			for(int i = 0; i < args.length; i ++){
-				//System.out.println("["+args[i].getClass().getName());
-				classArr[i] = args[i].getClass();//Object.class;//
-				//System.out.println("]"+classArr[i].getName());
-				if(typeArr[i].getClass().getName() == "sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl" || typeArr[i].getClass().getName() == "sun.reflect.generics.reflectiveObjects.TypeVariableImpl"){
-					classArr[i] = Object.class;
+
+		if(implFoundMethod) {
+			if (args != null && args.length > 0) {
+				classArr = new Class<?>[args.length];
+				for (int i = 0; i < args.length; i++) {
+					//System.out.println("["+args[i].getClass().getName());
+					classArr[i] = args[i].getClass();//Object.class;//
+					//System.out.println("]"+classArr[i].getName());
+					if (typeArr[i].getClass().getName().equals("sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl") || typeArr[i].getClass().getName().equals("sun.reflect.generics.reflectiveObjects.TypeVariableImpl")) {
+						classArr[i] = Object.class;
+					}
 				}
 			}
 		}
@@ -103,8 +111,30 @@ public class RepoInvocationHandler implements InvocationHandler {
 			System.out.println("ffff:"+classArr[i].getName());
 		}*/
 
-		Method me = repoClass.getDeclaredMethod(methodName, classArr);
-		return me.invoke(repoImpl, args);
+
+		if(implFoundMethod) {
+			Method me = repoClass.getDeclaredMethod(methodName, classArr);
+			return me.invoke(repoImpl, args);
+		}else if (methodName.contains("findBy")) {
+				String measurementName = ((Measurement) innerClass.getAnnotation(Measurement.class)).name();
+				Objects.requireNonNull(measurementName, "measurementName");
+				for (Method methods : repoClass.getDeclaredMethods()) {
+
+					if (methods.getName().equals("find")) {
+						//System.out.println(methods.getName());
+						baseQueryMethod = methods;
+						break;
+					}
+				}
+
+				Objects.requireNonNull(baseQueryMethod, "baseQueryMethod");
+				String sqlQuery = JPAConvertor.getInfluxDBSql(measurementName, method, args);
+				return baseQueryMethod.invoke(repoImpl, sqlQuery);
+
+		}
+		return null;
+
+
 	}
 
 }

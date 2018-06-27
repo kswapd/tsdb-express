@@ -1,4 +1,4 @@
-package com.dcits.utils;
+package com.dcits.tsdb.utils;
 
 import com.dcits.tsdb.exceptions.SqlConvertorException;
 import java.beans.Introspector;
@@ -30,7 +30,7 @@ public class JPAConvertor {
 
 
 		ArrayList<String> allPredicates = new ArrayList<String>(Arrays.asList("LessThan", "GreaterThan", "After",
-				"Before", "Not", "Like","OrderBy", "Is", "Limit"));
+				"Before", "Not", "Like","OrderBy", "Is"));
 
 		//Supported operators: =   equal to <> not equal to != not equal to >   
 		// greater than >= greater than or equal to <   less than <= less than or equal to
@@ -44,7 +44,6 @@ public class JPAConvertor {
 		predicateSqlMap.put("LessThan", "<");
 		predicateSqlMap.put("OrderBy", "order by");
 		predicateSqlMap.put("Is", "=");
-		predicateSqlMap.put("Limit", "limit");
 
 
 		ArrayList<String> subjects = new ArrayList<String>();
@@ -58,11 +57,10 @@ public class JPAConvertor {
 		}
 
 		String originalSubPred = methodName.substring(startStr.length());
-		String orderByStr = null;
-		String limitStr = null;
+
 
 		//originalSubPred: AgeGreaterThanAgeLessThanAndNameLike
-		if(!originalSubPred.contains("OrderBy") && !originalSubPred.contains("Limit")) {
+		if(!originalSubPred.contains("OrderBy")) {
 			if (originalSubPred.contains(andSplit)) {
 				allAndSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
 				allSubPreds.addAll(allAndSubPreds);
@@ -79,11 +77,9 @@ public class JPAConvertor {
 			else {
 				allSubPreds.add(originalSubPred);
 			}
-		}else
+		}else{
 
-		if(originalSubPred.contains("OrderBy")){
-
-			orderByStr = originalSubPred.substring(originalSubPred.indexOf("OrderBy"), originalSubPred.length());
+			String orderByStr = originalSubPred.substring(originalSubPred.indexOf("OrderBy"), originalSubPred.length());
 			String subOrderByStr = originalSubPred.substring(0,originalSubPred.indexOf("OrderBy"));
 			if (subOrderByStr.contains(andSplit)) {
 				allAndSubPreds.addAll(Arrays.asList(subOrderByStr.split(andSplit)));
@@ -102,25 +98,9 @@ public class JPAConvertor {
 				allSubPreds.add(subOrderByStr);
 			}
 
-
-
-
-
-
-			if(!orderByStr.contains("Limit")) {
-				allSubPreds.add(orderByStr);
-			}else if(orderByStr.contains("Limit")) {
-
-				limitStr = orderByStr.substring(orderByStr.indexOf("Limit"), orderByStr.length());
-				String finalOrderByStr = orderByStr.substring(0, orderByStr.indexOf("Limit"));
-				allSubPreds.add(finalOrderByStr);
-				allSubPreds.add(limitStr);
-			}
+			allSubPreds.add(orderByStr);
 
 		}
-
-
-
 
 		String consSql = sql;
 		int curCondNum = 0;
@@ -134,7 +114,7 @@ public class JPAConvertor {
 
 			for(String pred:allPredicates){
 
-				if(subPred.contains(pred) && !pred.equals("OrderBy") && !pred.equals("Limit")){
+				if(subPred.contains(pred) && !pred.equals("OrderBy")){
 					curSub = subPred.split(pred)[0];
 					curPred = predicateSqlMap.get(pred);
 				}else if(subPred.contains(pred) && pred.equals("OrderBy")){
@@ -148,17 +128,13 @@ public class JPAConvertor {
 						curSub = curSub.substring(0, curSub.length() - 3);
 						orderDirection = "asc";
 					}
-				}else if(subPred.contains(pred) && pred.equals("Limit")){
-					curSub = "Limit";
-					curPred = "limit";
 				}
 			}
 			if(StringUtils.isEmpty(curSub)){
 				curSub = subPred;
 				curPred = "=";
 			}
-
-			if(!curPred.equals("order by") && !curPred.equals("limit")){
+			if(!curPred.equals("order by")){
 				String varName = Introspector.decapitalize(curSub);
 				if(curPred.equals("=")){
 					condStr =  "\"" + varName +"\" " + curPred + " '" + String.valueOf(args[curCondNum]) + "'";
@@ -169,36 +145,26 @@ public class JPAConvertor {
 						condStr = varName + " " + curPred + " " + Long.valueOf(String.valueOf(args[curCondNum]));
 					}
 				}
-				curCondNum ++;
 
-			}else if(curPred.equals("order by")){
+			}else{
 				String varName = Introspector.decapitalize(curSub);
 				condStr = " " + curPred + " " + varName + " " + orderDirection;
 
 				if(consSql.endsWith("and ")){
 					consSql = consSql.substring(0, consSql.length() - 4);
 				}
-				//consSql += " " + condStr;
-				//break;
-			}else if(curPred.equals("limit")){
-				//String varName = Introspector.decapitalize(curSub);
-				condStr = " " + curPred + " " + Long.valueOf(String.valueOf(args[curCondNum]));
-				if(consSql.endsWith("and ")){
-					consSql = consSql.substring(0, consSql.length() - 4);
-				}
 				consSql += " " + condStr;
-				curCondNum ++;
 				break;
 			}
 
 
-			if(curCondNum == 1){
+			if(curCondNum == 0){
 				consSql += condStr;
 			}else{
 				consSql += " and " + condStr;
 			}
 
-
+			curCondNum ++;
 
 
 		}
@@ -226,7 +192,7 @@ public class JPAConvertor {
 
 
 			ArrayList<String> allPredicates = new ArrayList<String>(Arrays.asList("LessThan", "GreaterThan", "After",
-					"Before", "Not", "Like","OrderBy", "Is"));
+					"Before", "Not", "Like","OrderBy", "Is", "Limit"));
 
 			//Supported operators: =   equal to <> not equal to != not equal to >   
 			// greater than >= greater than or equal to <   less than <= less than or equal to
@@ -240,6 +206,7 @@ public class JPAConvertor {
 			predicateSqlMap.put("LessThan", "<");
 			predicateSqlMap.put("OrderBy", "order by");
 			predicateSqlMap.put("Is", "=");
+			predicateSqlMap.put("Limit", "limit");
 
 
 			ArrayList<String> subjects = new ArrayList<String>();
@@ -253,10 +220,11 @@ public class JPAConvertor {
 			}
 
 			String originalSubPred = methodName.substring(startStr.length());
-
+			String orderByStr = null;
+			String limitStr = null;
 
 			//originalSubPred: AgeGreaterThanAgeLessThanAndNameLike
-			if(!originalSubPred.contains("OrderBy")) {
+			if(!originalSubPred.contains("OrderBy") && !originalSubPred.contains("Limit")) {
 				if (originalSubPred.contains(andSplit)) {
 					allAndSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
 					allSubPreds.addAll(allAndSubPreds);
@@ -273,9 +241,11 @@ public class JPAConvertor {
 				else {
 					allSubPreds.add(originalSubPred);
 				}
-			}else{
+			}else
 
-				String orderByStr = originalSubPred.substring(originalSubPred.indexOf("OrderBy"), originalSubPred.length());
+			if(originalSubPred.contains("OrderBy")){
+
+				orderByStr = originalSubPred.substring(originalSubPred.indexOf("OrderBy"), originalSubPred.length());
 				String subOrderByStr = originalSubPred.substring(0,originalSubPred.indexOf("OrderBy"));
 				if (subOrderByStr.contains(andSplit)) {
 					allAndSubPreds.addAll(Arrays.asList(subOrderByStr.split(andSplit)));
@@ -294,9 +264,25 @@ public class JPAConvertor {
 					allSubPreds.add(subOrderByStr);
 				}
 
-				allSubPreds.add(orderByStr);
+
+
+
+
+
+				if(!orderByStr.contains("Limit")) {
+					allSubPreds.add(orderByStr);
+				}else if(orderByStr.contains("Limit")) {
+
+					limitStr = orderByStr.substring(orderByStr.indexOf("Limit"), orderByStr.length());
+					String finalOrderByStr = orderByStr.substring(0, orderByStr.indexOf("Limit"));
+					allSubPreds.add(finalOrderByStr);
+					allSubPreds.add(limitStr);
+				}
 
 			}
+
+
+
 
 			String consSql = sql;
 			int curCondNum = 0;
@@ -310,7 +296,7 @@ public class JPAConvertor {
 
 				for(String pred:allPredicates){
 
-					if(subPred.contains(pred) && !pred.equals("OrderBy")){
+					if(subPred.contains(pred) && !pred.equals("OrderBy") && !pred.equals("Limit")){
 						curSub = subPred.split(pred)[0];
 						curPred = predicateSqlMap.get(pred);
 					}else if(subPred.contains(pred) && pred.equals("OrderBy")){
@@ -324,13 +310,17 @@ public class JPAConvertor {
 							curSub = curSub.substring(0, curSub.length() - 3);
 							orderDirection = "asc";
 						}
+					}else if(subPred.contains(pred) && pred.equals("Limit")){
+						curSub = "Limit";
+						curPred = "limit";
 					}
 				}
 				if(StringUtils.isEmpty(curSub)){
 					curSub = subPred;
 					curPred = "=";
 				}
-				if(!curPred.equals("order by")){
+
+				if(!curPred.equals("order by") && !curPred.equals("limit")){
 					String varName = Introspector.decapitalize(curSub);
 					if(curPred.equals("=")){
 						condStr =  "\"" + varName +"\" " + curPred + " '" + String.valueOf(args[curCondNum]) + "'";
@@ -341,26 +331,36 @@ public class JPAConvertor {
 							condStr = varName + " " + curPred + " " + Long.valueOf(String.valueOf(args[curCondNum]));
 						}
 					}
+					curCondNum ++;
 
-				}else{
+				}else if(curPred.equals("order by")){
 					String varName = Introspector.decapitalize(curSub);
 					condStr = " " + curPred + " " + varName + " " + orderDirection;
 
 					if(consSql.endsWith("and ")){
 						consSql = consSql.substring(0, consSql.length() - 4);
 					}
+					//consSql += " " + condStr;
+					//break;
+				}else if(curPred.equals("limit")){
+					//String varName = Introspector.decapitalize(curSub);
+					condStr = " " + curPred + " " + Long.valueOf(String.valueOf(args[curCondNum]));
+					if(consSql.endsWith("and ")){
+						consSql = consSql.substring(0, consSql.length() - 4);
+					}
 					consSql += " " + condStr;
+					curCondNum ++;
 					break;
 				}
 
 
-				if(curCondNum == 0){
+				if(curCondNum == 1){
 					consSql += condStr;
 				}else{
 					consSql += " and " + condStr;
 				}
 
-				curCondNum ++;
+
 
 
 			}

@@ -8,6 +8,7 @@ import com.dcits.repo.models.Cpu;
 import com.dcits.repo.models.Disk;
 import com.dcits.repo.models.Memory;
 import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
+import com.dcits.utils.JPAConvertor;
 import java.util.List;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -23,6 +24,10 @@ public class Application {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"tsdb.xml"});
 		context.start();
 
+		Object []arr=new Object[]{1232323,55, "kxw",5};
+		//String sqlLang = JPAConvertor.getInfluxDBSqlFromStr("cpu", "findByAgeGreaterThan", arr);
+		//findByAgeGreaterThanAndHostOrderByCpuDesc
+		String sqlLang = JPAConvertor.getInfluxDBSqlFromStr("cpu", "findByTimeBeforeAndCpuGreaterThanAndHostIsOrderByCpuDescLimit", arr);
 		//InfluxDBRepoReal express = (InfluxDBRepoReal)context.getBean("tsdbRepo"); okok
 		RepoCpu cpuExpress = (RepoCpu)context.getBean("repoCpu");
 		RepoDisks diskExpress = (RepoDisks)context.getBean("repoDisks");
@@ -51,7 +56,7 @@ public class Application {
 			ds.setUsed(300+randDiskUsed);
 
 			//ds.setTime;
-			diskExpress.writeBean(ds);
+			diskExpress.save(ds);
 
 			/*express.write(Point.measurement("disk")
 					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
@@ -86,8 +91,13 @@ public class Application {
 				long num = memExpress.count();
 				System.out.println(String.format("%s,%d", o.toString(), num));
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
-				List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
 
+
+			//	List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
+
+
+				//List<Memory> memList = memExpress.find("SELECT *  FROM memory WHERE ip_addr='192.168.1.100' order by time desc limit 3");
+				List<Memory> memList = memExpress.findByIpAddrOrderByTimeDescLimit("192.168.1.100",5);
 				for(Memory m:memList){
 					System.out.println(m.toString());
 				}
