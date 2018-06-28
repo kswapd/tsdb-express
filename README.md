@@ -17,7 +17,7 @@ A time series database middleware to connect InfluxDB, this is a **JPA**-compati
 ## Prerequisites
 * Install InfluxDB **version 1.5.2** and chronograf as InfluxDB web UI.
 
-use docker-compose to setup 
+use docker-compose to setup as an example as belows
  ```
  version: "2"
  services:
@@ -40,12 +40,26 @@ use docker-compose to setup
  
  ```
  
-* Create InfluxDB databases with retention policy
+* Create InfluxDB databases with retention policy.
 ```
 >influx -precision rfc3339
 >CREATE DATABASE "metrics_db3" WITH DURATION 3h REPLICATION 1 NAME "rp_3h"
 ```
 
+* Add resource file tsdb.properties in your project.
+```
+#tsdb.properties
+#influxdb url
+influxdb.address=http://10.88.2.104:8086
+influxdb.user=root
+influxdb.password=root
+influxdb.dbName=metrics_db3
+influxdb.rpName=rp_3h
+#All data will be flushed into database when data size is larger than maxBatchSize.
+influxdb.maxBatchSize=10
+#All data will be flushed into database when time interval of data timestamp from now is larger than maxBatchInterval(milliseconds).
+influxdb.maxBatchInterval=100
+```
 
 ## Compile
 
