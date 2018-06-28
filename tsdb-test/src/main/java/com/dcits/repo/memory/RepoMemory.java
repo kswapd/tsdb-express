@@ -1,4 +1,4 @@
-package com.dcits.repo.interfaces;
+package com.dcits.repo.memory;
 
 import com.dcits.repo.models.Cpu;
 import com.dcits.repo.models.Memory;

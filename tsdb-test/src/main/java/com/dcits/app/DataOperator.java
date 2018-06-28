@@ -1,8 +1,8 @@
 package com.dcits.app;
 
-import com.dcits.repo.interfaces.RepoCpu;
-import com.dcits.repo.interfaces.RepoDisks;
-import com.dcits.repo.interfaces.RepoMemory;
+import com.dcits.repo.othermetrics.RepoCpu;
+import com.dcits.repo.othermetrics.RepoDisks;
+import com.dcits.repo.memory.RepoMemory;
 import com.dcits.repo.models.Cpu;
 import com.dcits.repo.models.Disk;
 import com.dcits.repo.models.Memory;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by kongxiangwen on 6/28/18 w:26.
  */
-@EnableRepoInterfaceScan("com.dcits.repo.interfaces")
+@EnableRepoInterfaceScan({"com.dcits.repo.othermetrics","com.dcits.repo.memory"})
 @Component
 public class DataOperator {
 	@Resource

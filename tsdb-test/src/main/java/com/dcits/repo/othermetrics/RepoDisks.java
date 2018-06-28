@@ -1,4 +1,4 @@
-package com.dcits.repo.interfaces;
+package com.dcits.repo.othermetrics;
 
 import com.dcits.repo.models.Disk;
 import com.dcits.tsdb.interfaces.CustomRepo;
