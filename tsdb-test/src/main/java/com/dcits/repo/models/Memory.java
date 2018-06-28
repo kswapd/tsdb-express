@@ -1,5 +1,6 @@
 package com.dcits.repo.models;
 
+import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import com.dcits.tsdb.annotations.Measurement;
 
 /**

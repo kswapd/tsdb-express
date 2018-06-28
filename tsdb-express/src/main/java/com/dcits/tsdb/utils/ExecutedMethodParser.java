@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 /**
  * Created by kongxiangwen on 6/26/18 w:26.
  */
-public class JPAConvertor {
+public class ExecutedMethodParser {
 
 
 

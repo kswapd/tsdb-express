@@ -1,7 +1,7 @@
 package com.dcits.tsdb.impl;
 
 import com.dcits.tsdb.annotations.Measurement;
-import com.dcits.tsdb.utils.JPAConvertor;
+import com.dcits.tsdb.utils.ExecutedMethodParser;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -125,7 +125,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 					}
 				}
 				Objects.requireNonNull(baseQueryMethod, "baseQueryMethod");
-				String sqlQuery = JPAConvertor.getInfluxDBSql(measurementName, method, args);
+				String sqlQuery = ExecutedMethodParser.getInfluxDBSql(measurementName, method, args);
 				Object obj = baseQueryMethod.invoke(repoImpl, sqlQuery);
 				return obj;
 

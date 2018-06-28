@@ -3,6 +3,7 @@ package com.dcits.repo.interfaces;
 import com.dcits.repo.models.Cpu;
 import com.dcits.repo.models.Memory;
 import com.dcits.tsdb.annotations.CustomRepoDeclared;
+import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import com.dcits.tsdb.interfaces.CustomRepo;
 import java.util.List;
 
