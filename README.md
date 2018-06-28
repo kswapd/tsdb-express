@@ -5,7 +5,7 @@
 
 
 ## Introduction
-A time series database middleware to connect InfluxDB, this is a **JPA**-compatible interface, what you need to do is to define your measurement models and declare a generic type interface within your measurements, this middleware will automatically implement your inerfaces! 
+A time series database middleware to connect InfluxDB, support **JPA**-compatible entity definition and method declaration, After your measurement models definition and corresponding generic type interface declartion, you can  query and save influxDB data as a normal java bean object! 
 
 
 ## Requirement
