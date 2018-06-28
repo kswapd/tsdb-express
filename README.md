@@ -5,7 +5,7 @@
 
 
 ## Introduction
-A time series database middleware to connect InfluxDB, this is a **JPA**-like interface, what you need to do is to define your measurement models and declare a generic type interface within your measurement, this middleware will automatically implement your inerfaces! 
+A time series database middleware to connect InfluxDB, this is a **JPA**-compatible interface, what you need to do is to define your measurement models and declare a generic type interface within your measurements, this middleware will automatically implement your inerfaces! 
 
 
 ## Requirement
@@ -60,6 +60,95 @@ use docker-compose to setup
         <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
+## Usage
+
+### influxDB measurement model definition
+```
+//Cpu.java
+@Measurement(name = "cpu")
+public class Cpu {
+
+	@Column(name = "time")
+	private String time;
+
+	@Tag(name = "host")
+	private String host="aaa";
+
+
+	@Column(name = "idle")
+	private Integer idle;
+
+	@Column(name = "user")
+	private Integer user;
+
+	@Column(name = "system")
+	private Integer system;
+
+
+	@Override
+	public String toString() {
+		return "Cpu{" +
+				"time='" + time + '\'' +
+				", host='" + host + '\'' +
+				", idle=" + idle +
+				", user=" + user +
+				", system=" + system +
+				'}';
+	}
+
+...
+...
+```
+or use abstract class
+
+```
+//Memory.java
+@Measurement(name = "memory")
+public class Memory extends PercentMeasuerment {
+}
+```
+
+
+###influxDB repository definition
+
+```
+//Cpu measurement repository
+@CustomRepoDeclared
+public interface RepoCpu extends CustomRepo<Cpu> {
+
+}
+```
+Or more complex JPA-compatible method declaration
+```
+@CustomRepoDeclared
+public interface RepoMemory extends CustomRepo<Memory> {
+
+	public List<Memory> findByIpAddrOrderByTimeDescLimit(String ip, int limit);
+	public List<Memory> findByIpAddrLimit(String ip, int limit);
+	public List<Memory> findByIpAddrAndTimeBeforeLimit(String ip, String time,int limit);
+	public List<Memory> findByIpAddrAndTimeBeforeOrderByTimeDescLimit(String ip, String time,int limit);
+	public List<Memory> aggregateByIpAddrAndTimeBeforeOrderByTimeDescLimit(String ip, String time,int limit);
+	public List<Memory> aggregateByPercentMeanIpAddrAndTimeBeforeGroupByTimeOrderByTimeDescLimit(String ip, String time,String interval, int limit);
+}
+
+```
+
+
+
+### JPA method usage
+```
+
+    //corresponding influxdb sql: select * from memory where "ipAddr"="192.168.1.100" order by time desc limit 5
+    List<Memory> memList = memExpress.findByIpAddrOrderByTimeDescLimit("192.168.1.100",5);
+	
+    //corresponding influxdb sql: select * from memory where "ipAddr"="192.168.1.100" and time<'2018-06-28T05:34:04.920Z'  order by time desc limit 5
+    List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
+	
+    //corresponding influxdb sql: select mean(percent) as percent from memory where "ipAddr"="192.168.1.100" and time<'2018-06-28T05:34:04.920Z' order by time desc limit 5
+    List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrAndTimeBeforeGroupByTimeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"5m", 5);
+
+```
+
 
 ## Development Instructions
 **MUST** follow the instructions of **NOTE** section.
