@@ -1,7 +1,6 @@
 package com.dcits.app;
 
 
-import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**

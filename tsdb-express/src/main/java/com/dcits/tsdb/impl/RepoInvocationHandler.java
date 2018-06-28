@@ -115,7 +115,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 		if(implFoundMethod) {
 			Method me = repoClass.getDeclaredMethod(methodName, classArr);
 			return me.invoke(repoImpl, args);
-		}else if (methodName.contains("findBy")) {
+		}else if (methodName.contains("findBy") || methodName.contains("aggregateBy")) {
 				String measurementName = ((Measurement) innerClass.getAnnotation(Measurement.class)).name();
 				Objects.requireNonNull(measurementName, "measurementName");
 				for (Method methods : repoClass.getDeclaredMethods()) {
