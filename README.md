@@ -109,7 +109,7 @@ public class Memory extends PercentMeasuerment {
 ```
 
 
-###influxDB repository definition
+### influxDB repository definition
 
 ```
 //Cpu measurement repository
@@ -144,7 +144,7 @@ public interface RepoMemory extends CustomRepo<Memory> {
     //corresponding influxdb sql: select * from memory where "ipAddr"="192.168.1.100" and time<'2018-06-28T05:34:04.920Z'  order by time desc limit 5
     List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 	
-    //corresponding influxdb sql: select mean(percent) as percent from memory where "ipAddr"="192.168.1.100" and time<'2018-06-28T05:34:04.920Z' order by time desc limit 5
+    //corresponding influxdb sql: select mean(percent) as percent from memory where "ipAddr"="192.168.1.100" and time<'2018-06-28T05:34:04.920Z' group by time(5m) order by time desc limit 5
     List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrAndTimeBeforeGroupByTimeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"5m", 5);
 
 ```
