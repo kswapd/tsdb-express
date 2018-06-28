@@ -9,6 +9,8 @@ import com.dcits.repo.models.Disk;
 import com.dcits.repo.models.Memory;
 import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import com.dcits.tsdb.utils.JPAConvertor;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -23,12 +25,6 @@ public class Application {
 		boolean isStart = true;
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"tsdb.xml"});
 		context.start();
-
-		Object []arr=new Object[]{1232323,55, "kxw",5};
-		//String sqlLang = JPAConvertor.getInfluxDBSqlFromStr("cpu", "findByAgeGreaterThan", arr);
-		//findByAgeGreaterThanAndHostOrderByCpuDesc
-		//String sqlLang = JPAConvertor.getInfluxDBSqlFromStr("cpu", "findByTimeBeforeAndCpuGreaterThanAndHostIsOrderByCpuDescLimit", arr);
-		//InfluxDBRepoReal express = (InfluxDBRepoReal)context.getBean("tsdbRepo"); okok
 		RepoCpu cpuExpress = (RepoCpu)context.getBean("repoCpu");
 		RepoDisks diskExpress = (RepoDisks)context.getBean("repoDisks");
 		RepoMemory memExpress = (RepoMemory)context.getBean("repoMemory");
@@ -58,13 +54,6 @@ public class Application {
 			//ds.setTime;
 			diskExpress.save(ds);
 
-			/*express.write(Point.measurement("disk")
-					.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-					.addField("used", 80L +randDiskUsed)
-					.addField("free", 300L + randDiskFree)
-					.tag("host", "kxw_v2")
-					.build());x*/
-
 
 			Memory mem = new Memory();
 			mem.setIpAddr("192.168.1.100");
@@ -72,10 +61,12 @@ public class Application {
 
 			//mem.setTime(String.valueOf(System.currentTimeMillis()));
 			mem.setTime(String.valueOf(System.currentTimeMillis()));
-			//memExpress.writeBean(mem);
+
+			long before2Min = System.currentTimeMillis() - 8*60*60* 1000 - 5*1000;
+			System.out.println(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+					.format(new Date(before2Min)));
+
 			memExpress.save(mem);
-
-
 			try {
 				/*List<Cpu> cpuList = cpuExpress.queryBeans("SELECT * FROM cpu WHERE time > now() - 5s order by time desc limit 3");
 				for(Cpu c:cpuList){
@@ -91,24 +82,25 @@ public class Application {
 				long num = memExpress.count();
 				System.out.println(String.format("%s,%d", o.toString(), num));
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
-
-
-			//	List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
-
-
+				//List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
 				//List<Memory> memList = memExpress.find("SELECT *  FROM memory WHERE ip_addr='192.168.1.100' order by time desc limit 3");
 				//List<Memory> memList = memExpress.findByIpAddrOrderByTimeDescLimit("192.168.1.100",5);
-				List<Memory> memList = memExpress.findByIpAddrLimit("192.168.1.100",5);
+				List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100",String.valueOf(before2Min),5);
 				//Memory memList = memExpress.findLastOne();
 				for(Memory m:memList)
 				{
 					System.out.println(m.toString());
 				}
 
-				Thread.sleep(1000);
+
 			}
 			catch (RuntimeException e){
 				System.out.println(e.getMessage());
+
+			}
+
+			try{
+				Thread.sleep(1000);
 			}
 			catch(InterruptedException e){
 				isStart = false;

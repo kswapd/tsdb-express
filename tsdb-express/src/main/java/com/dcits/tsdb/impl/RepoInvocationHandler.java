@@ -119,17 +119,15 @@ public class RepoInvocationHandler implements InvocationHandler {
 				String measurementName = ((Measurement) innerClass.getAnnotation(Measurement.class)).name();
 				Objects.requireNonNull(measurementName, "measurementName");
 				for (Method methods : repoClass.getDeclaredMethods()) {
-
 					if (methods.getName().equals("find")) {
-						//System.out.println(methods.getName());
 						baseQueryMethod = methods;
 						break;
 					}
 				}
-
 				Objects.requireNonNull(baseQueryMethod, "baseQueryMethod");
 				String sqlQuery = JPAConvertor.getInfluxDBSql(measurementName, method, args);
-				return baseQueryMethod.invoke(repoImpl, sqlQuery);
+				Object obj = baseQueryMethod.invoke(repoImpl, sqlQuery);
+				return obj;
 
 		}
 		return null;

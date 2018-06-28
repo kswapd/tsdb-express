@@ -115,7 +115,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 
 
-		System.out.println(address);
+		System.out.println("connecting influxDB addr:" + address);
 		influxDB = InfluxDBFactory.connect(address, user, password);
 		influxDB.createDatabase(dbName);
 		influxDB.enableBatch(maxBatchSize, maxBatchInterval, TimeUnit.MILLISECONDS);

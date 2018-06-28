@@ -3,8 +3,10 @@ package com.dcits.tsdb.utils;
 import com.dcits.tsdb.exceptions.SqlConvertorException;
 import java.beans.Introspector;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -197,7 +199,11 @@ public class JPAConvertor {
 						if(!varName.equals("time")) {
 							condStr = varName + " " + curPred + " " + Double.valueOf(String.valueOf(args[curCondNum]));
 						}else{
-							condStr = varName + " " + curPred + " " + Long.valueOf(String.valueOf(args[curCondNum]));
+							String rfcTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+									.format(new Date(Long.valueOf(String.valueOf(args[curCondNum]))));
+
+
+							condStr = varName + " " + curPred + " " + "'" + rfcTime + "'";
 						}
 					}
 					curCondNum ++;
@@ -226,7 +232,11 @@ public class JPAConvertor {
 				if(curCondNum == 1){
 					consSql += condStr;
 				}else{
-					consSql += " and " + condStr;
+					if(!condStr.contains("order by")) {
+						consSql += " and " + condStr;
+					}else{
+						consSql += " " + condStr;
+					}
 				}
 
 
