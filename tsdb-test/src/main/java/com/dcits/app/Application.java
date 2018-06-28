@@ -8,7 +8,7 @@ import com.dcits.repo.models.Cpu;
 import com.dcits.repo.models.Disk;
 import com.dcits.repo.models.Memory;
 import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
-import com.dcits.utils.JPAConvertor;
+import com.dcits.tsdb.utils.JPAConvertor;
 import java.util.List;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -27,7 +27,7 @@ public class Application {
 		Object []arr=new Object[]{1232323,55, "kxw",5};
 		//String sqlLang = JPAConvertor.getInfluxDBSqlFromStr("cpu", "findByAgeGreaterThan", arr);
 		//findByAgeGreaterThanAndHostOrderByCpuDesc
-		String sqlLang = JPAConvertor.getInfluxDBSqlFromStr("cpu", "findByTimeBeforeAndCpuGreaterThanAndHostIsOrderByCpuDescLimit", arr);
+		//String sqlLang = JPAConvertor.getInfluxDBSqlFromStr("cpu", "findByTimeBeforeAndCpuGreaterThanAndHostIsOrderByCpuDescLimit", arr);
 		//InfluxDBRepoReal express = (InfluxDBRepoReal)context.getBean("tsdbRepo"); okok
 		RepoCpu cpuExpress = (RepoCpu)context.getBean("repoCpu");
 		RepoDisks diskExpress = (RepoDisks)context.getBean("repoDisks");
@@ -97,13 +97,13 @@ public class Application {
 
 
 				//List<Memory> memList = memExpress.find("SELECT *  FROM memory WHERE ip_addr='192.168.1.100' order by time desc limit 3");
-				List<Memory> memList = memExpress.findByIpAddrOrderByTimeDescLimit("192.168.1.100",5);
-				for(Memory m:memList){
+				//List<Memory> memList = memExpress.findByIpAddrOrderByTimeDescLimit("192.168.1.100",5);
+				List<Memory> memList = memExpress.findByIpAddrLimit("192.168.1.100",5);
+				//Memory memList = memExpress.findLastOne();
+				for(Memory m:memList)
+				{
 					System.out.println(m.toString());
 				}
-
-
-
 
 				Thread.sleep(1000);
 			}

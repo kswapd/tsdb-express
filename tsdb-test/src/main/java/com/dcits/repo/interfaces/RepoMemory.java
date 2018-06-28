@@ -14,4 +14,5 @@ import java.util.List;
 public interface RepoMemory extends CustomRepo<Memory> {
 
 	public List<Memory> findByIpAddrOrderByTimeDescLimit(String ip, int limit);
+	public List<Memory> findByIpAddrLimit(String ip, int limit);
 }
