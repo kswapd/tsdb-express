@@ -1,11 +1,19 @@
 package com.dcits.tsdb.impl;
 
 import com.dcits.tsdb.annotations.Measurement;
+import com.dcits.tsdb.exceptions.InfluxDBMapperException;
 import com.dcits.tsdb.interfaces.CustomRepo;
 import com.dcits.tsdb.interfaces.TSDBExpress;
 import com.dcits.tsdb.utils.InfluxDBResultMapper;
+import com.sun.xml.internal.ws.api.PropertySet.Property;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -86,7 +94,55 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	}
 
 
+	private Properties tryLoadProps()  {
 
+		InputStream input = null;
+		List<String> filenames = null;
+		Properties prop = null;
+
+			//InputStream is = null;
+			InputStream is = this.getClass().getClassLoader().getResourceAsStream("tsdb.properties");
+			if(is == null){
+				try{
+
+					InputStream in = this.getClass().getResourceAsStream( "/" );
+					BufferedReader br = new BufferedReader( new InputStreamReader( in ) );
+					String resource;
+					/*filenames = new ArrayList<>();
+					while( (resource = br.readLine()) != null ) {
+						filenames.add(resource);
+					}*/
+					while( (resource = br.readLine()) != null ) {
+						if(resource.contains(".properties")){
+							is = this.getClass().getClassLoader().getResourceAsStream(resource);
+							break;
+						}
+
+					}
+
+				}catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+			input = is;
+
+		if(is == null){
+			throw new InfluxDBMapperException("not find property file for tsdb");
+		}
+
+
+		prop = new Properties();
+		try {
+			prop.load(input);
+		}
+		catch (IOException e) {
+			throw new InfluxDBMapperException("load property file error");
+		}
+
+		return prop;
+
+	}
 	@PostConstruct
 	public void init()
 	{
@@ -94,15 +150,8 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 		influxDBMapper = new InfluxDBResultMapper();
 
-		Properties prop = new Properties();
-		InputStream input = null;
 
-		try(InputStream is = this.getClass().getClassLoader().getResourceAsStream("tsdb.properties")) {
-			input = is;
-			prop.load(input);
-		}catch (IOException ex) {
-			ex.printStackTrace();
-		}
+		Properties prop = tryLoadProps();
 		//System.out.println("=====++"+prop.getProperty("influxdb.dbName"));
 
 		this.address = prop.getProperty("influxdb.address");
@@ -111,9 +160,6 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		this.dbName = prop.getProperty("influxdb.dbName");
 		this.maxBatchSize = Integer.parseInt(prop.getProperty("influxdb.maxBatchSize"));
 		this.maxBatchInterval = Integer.parseInt(prop.getProperty("influxdb.maxBatchInterval"));
-
-
-
 
 		System.out.println("connecting influxDB addr:" + address);
 		influxDB = InfluxDBFactory.connect(address, user, password);
