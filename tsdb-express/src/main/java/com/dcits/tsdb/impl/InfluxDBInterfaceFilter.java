@@ -35,14 +35,17 @@ public class InfluxDBInterfaceFilter  implements TypeFilter {
 			p = Class.forName(metadata.getClassName());
 		}
 		catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			return isMatch;
 		}
+		
 		//tp example:com.dcits.tsdb.interfaces.CustomRepo<com.dcits.repo.models.Memory>
 		Type []tp = p.getGenericInterfaces();
-		for(Type t: tp){
-			if(t.toString().contains(repoName)){
-				isMatch = true;
-				break;
+		if( tp!=null && tp.length>0 ) {
+			for (Type t : tp) {
+				if (t.toString().contains(repoName)) {
+					isMatch = true;
+					break;
+				}
 			}
 		}
 		return isMatch;
