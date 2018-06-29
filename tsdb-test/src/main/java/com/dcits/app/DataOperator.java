@@ -10,6 +10,7 @@ import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
@@ -61,9 +62,13 @@ public class DataOperator {
 			//mem.setTime(String.valueOf(System.currentTimeMillis()));
 			mem.setTime(String.valueOf(System.currentTimeMillis()));
 
-			long before2Min = System.currentTimeMillis() - 8 * 60 * 60 * 1000 - 5 * 1000;
-			System.out.println(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-					.format(new Date(before2Min)));
+			long before2Min = System.currentTimeMillis()  - 5 * 1000;		//utc time
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+			//System.out.println(TimeZone.getTimeZone("GMT").toString());
+			System.out.println(dateFormat.format(new Date(before2Min)));	//default local time zone time
 
 			memExpress.save(mem);
 			try {
@@ -79,7 +84,7 @@ public class DataOperator {
 
 				Memory o = memExpress.findLastOne();
 				long num = memExpress.count();
-				System.out.println(String.format("%s,%d", o.toString(), num));
+				System.out.println(String.format("%s,%d",  o.toString(),num));
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
 				//List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
 				//List<Memory> memList = memExpress.find("SELECT *  FROM memory WHERE ip_addr='192.168.1.100' order by time desc limit 3");

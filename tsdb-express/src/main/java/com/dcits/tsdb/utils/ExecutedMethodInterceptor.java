@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 import org.springframework.util.StringUtils;
 
 /**
@@ -241,8 +242,9 @@ public class ExecutedMethodInterceptor {
 					if(!varName.equals("time")) {
 						condStr = varName + " " + curPred + " " + Double.valueOf(String.valueOf(args[curCondNum]));
 					}else{
-						String rfcTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-								.format(new Date(Long.valueOf(String.valueOf(args[curCondNum]))));
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+						sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+						String rfcTime = sdf.format(new Date(Long.valueOf(String.valueOf(args[curCondNum]))));
 
 
 						condStr = varName + " " + curPred + " " + "'" + rfcTime + "'";
@@ -510,8 +512,12 @@ public class ExecutedMethodInterceptor {
 						if(!varName.equals("time")) {
 							condStr = varName + " " + curPred + " " + Double.valueOf(String.valueOf(args[curCondNum]));
 						}else{
-							String rfcTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-									.format(new Date(Long.valueOf(String.valueOf(args[curCondNum]))));
+							//String rfcTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+							//		.format(new Date(Long.valueOf(String.valueOf(args[curCondNum]))));
+
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+							sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+							String rfcTime = sdf.format(new Date(Long.valueOf(String.valueOf(args[curCondNum]))));
 
 
 							condStr = varName + " " + curPred + " " + "'" + rfcTime + "'";

@@ -136,6 +136,7 @@ public class InfluxDBResultMapper {
 		}
 	}
 
+
 	void throwExceptionIfResultWithError(final QueryResult queryResult) {
 		if (queryResult.getError() != null) {
 			throw new InfluxDBMapperException("InfluxDB returned an error: " + queryResult.getError());

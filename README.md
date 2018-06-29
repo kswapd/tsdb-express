@@ -141,7 +141,6 @@ public interface RepoMemory extends CustomRepo<Memory> {
 	public List<Memory> findByIpAddrLimit(String ip, int limit);
 	public List<Memory> findByIpAddrAndTimeBeforeLimit(String ip, String time,int limit);
 	public List<Memory> findByIpAddrAndTimeBeforeOrderByTimeDescLimit(String ip, String time,int limit);
-	public List<Memory> aggregateByIpAddrAndTimeBeforeOrderByTimeDescLimit(String ip, String time,int limit);
 	public List<Memory> aggregateByPercentMeanIpAddrAndTimeBeforeGroupByTimeOrderByTimeDescLimit(String ip, String time,String interval, int limit);
 }
 
