@@ -15,7 +15,35 @@ import org.springframework.util.StringUtils;
 /**
  * Created by kongxiangwen on 6/26/18 w:26.
  */
-public class ExecutedMethodParser {
+
+class LogicPart{
+
+	private String subjectPredicate;
+	private String logicConjection;
+
+	public String getSubjectPredicate() {
+		return subjectPredicate;
+	}
+
+	public void setSubjectPredicate(String subjectPredicate) {
+		this.subjectPredicate = subjectPredicate;
+	}
+
+	public String getLogicConjection() {
+		return logicConjection;
+	}
+
+	public void setLogicConjection(String logicConjection) {
+		this.logicConjection = logicConjection;
+	}
+
+	public LogicPart(String subjectPredicate, String logicConjection) {
+		this.subjectPredicate = subjectPredicate;
+		this.logicConjection = logicConjection;
+	}
+}
+
+public class ExecutedMethodInterceptor {
 
 
 
@@ -70,6 +98,9 @@ public class ExecutedMethodParser {
 		return curQuery;
 	}
 	//aggregateByAgeMeanTimeBeforeAndAgeGGroupByTimeOrderByTimeDesc('5m', '1111111')
+
+
+
 	public static String parseAggregateSql(String measurementName, String methodName, Object[] args)
 	//public static String getInfluxDBSql(String measurementName, String methodName, Object[] args)
 	{
@@ -107,13 +138,8 @@ public class ExecutedMethodParser {
 		predicateSqlMap.put("GroupByTime", "group by time");
 
 
-		ArrayList<String> subjects = new ArrayList<String>();
-		ArrayList<String> predicates = new ArrayList<String>();
-
-		ArrayList<String> allAndSubPreds = new ArrayList<String>();
-		ArrayList<String> allOrSubPreds = new ArrayList<String>();
-		ArrayList<String> allSubPreds = new ArrayList<String>();
-		ArrayList<String> lastSubPreds = new ArrayList<String>();
+		ArrayList<LogicPart> allSubPreds = new ArrayList<LogicPart>();
+		ArrayList<LogicPart> lastSubPreds = new ArrayList<LogicPart>();
 
 
 		String originalSubPred = methodName.substring(startStr.length());
@@ -133,17 +159,14 @@ public class ExecutedMethodParser {
 
 
 			if(!orderByStr.contains("Limit")) {
-				lastSubPreds.add(orderByStr);
+				lastSubPreds.add(new LogicPart(orderByStr, null));
 			}else if(orderByStr.contains("Limit")) {
 
 				limitStr = orderByStr.substring(orderByStr.indexOf("Limit"), orderByStr.length());
 				String finalOrderByStr = orderByStr.substring(0, orderByStr.indexOf("Limit"));
-				lastSubPreds.add(finalOrderByStr);
-				lastSubPreds.add(limitStr);
+				lastSubPreds.add(new LogicPart(finalOrderByStr,null));
+				lastSubPreds.add(new LogicPart(limitStr, null));
 			}
-
-
-
 
 		}else
 		if(originalSubPred.contains("Limit")){
@@ -151,7 +174,7 @@ public class ExecutedMethodParser {
 			limitStr = originalSubPred.substring(originalSubPred.indexOf("Limit"), originalSubPred.length());
 			originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("Limit"));
 			limitStr ="Limit";
-			lastSubPreds.add(limitStr);
+			lastSubPreds.add(new LogicPart(limitStr, null));
 		}
 
 
@@ -160,48 +183,32 @@ public class ExecutedMethodParser {
 			originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("GroupByTime"));
 			String groupStr ="GroupByTime";
 			//lastSubPreds.add(groupStr);
-			lastSubPreds.add(0, groupStr);
+			lastSubPreds.add(0, new LogicPart(groupStr,null));
 		}
 
 
-
-
-
-
-
-
-
-		if (originalSubPred.contains(andSplit)) {
-			allAndSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-			allSubPreds.addAll(allAndSubPreds);
-			//for(String perSubPred:allAndSubPreds){
-
-
-			//}
+		String[] splits = originalSubPred.split(andSplit+"|"+orSplit);
+		if(splits.length > 0){
+			//first element don't use "and" or "or" to join
+			allSubPreds.add(new LogicPart(splits[0], null));
+			for(int i = 1; i < splits.length; i ++){
+				int refIndex = originalSubPred.indexOf(splits[i]);
+				String dd = originalSubPred.substring(refIndex-3, refIndex);
+				if(originalSubPred.substring(refIndex-3, refIndex).equals(andSplit)){
+					allSubPreds.add(new LogicPart(splits[i], andSplit.toLowerCase()));
+				}else if(originalSubPred.substring(refIndex-2, refIndex).equals(orSplit)){
+					allSubPreds.add(new LogicPart(splits[i], orSplit.toLowerCase()));
+				}
+			}
+		}else{
+			allSubPreds.add(new LogicPart(originalSubPred, null));
 		}
-		else if (originalSubPred.contains(orSplit)) {
-
-			allOrSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-			allSubPreds.addAll(allOrSubPreds);
-		}
-		else {
-			allSubPreds.add(originalSubPred);
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		allSubPreds.addAll(lastSubPreds);
+
+
+
+
 
 
 
@@ -210,7 +217,11 @@ public class ExecutedMethodParser {
 		String consSql = sql;
 		int curCondNum = 0;
 		//subPred: AgeGreaterThan, NameLike, School,  TimeBetween, OrderByNameDesc
-		for(String subPred: allSubPreds){
+			//for(LogicPart lp: allSubPreds){
+			for(int index = 0;  index < allSubPreds.size(); index ++){
+				LogicPart lp = allSubPreds.get(index);
+			String subPred = lp.getSubjectPredicate();
+			String logicConjection = lp.getLogicConjection();
 			//if(subPred.contains())
 			String curSub = null;
 			String curPred = null;
@@ -270,6 +281,9 @@ public class ExecutedMethodParser {
 				if(consSql.endsWith("and ")){
 					consSql = consSql.substring(0, consSql.length() - 4);
 				}
+				if(consSql.endsWith("or ")){
+					consSql = consSql.substring(0, consSql.length() - 3);
+				}
 				//consSql += " " + condStr;
 				curCondNum ++;
 			}else if(curPred.equals("order by")){
@@ -279,6 +293,9 @@ public class ExecutedMethodParser {
 				if(consSql.endsWith("and ")){
 					consSql = consSql.substring(0, consSql.length() - 4);
 				}
+				if(consSql.endsWith("or ")){
+					consSql = consSql.substring(0, consSql.length() - 3);
+				}
 				//consSql += " " + condStr;
 				//break;
 			}else if(curPred.equals("limit")){
@@ -286,6 +303,9 @@ public class ExecutedMethodParser {
 				condStr = " " + curPred + " " + Long.valueOf(String.valueOf(args[curCondNum]));
 				if(consSql.endsWith("and ")){
 					consSql = consSql.substring(0, consSql.length() - 4);
+				}
+				if(consSql.endsWith("or ")){
+					consSql = consSql.substring(0, consSql.length() - 3);
 				}
 				consSql += " " + condStr;
 				curCondNum ++;
@@ -297,7 +317,8 @@ public class ExecutedMethodParser {
 				consSql += condStr;
 			}else{
 				if(!condStr.contains("order by") && !condStr.contains("group by time")) {
-					consSql += " and " + condStr;
+					//consSql += " and " + condStr;
+					consSql += " " + allSubPreds.get(index).getLogicConjection().toLowerCase() + " " + condStr;
 				}else{
 					consSql += " " + condStr;
 				}
@@ -307,8 +328,6 @@ public class ExecutedMethodParser {
 
 
 		}
-
-
 		return consSql;
 
 
@@ -347,13 +366,10 @@ public class ExecutedMethodParser {
 			predicateSqlMap.put("Limit", "limit");
 
 
-			ArrayList<String> subjects = new ArrayList<String>();
-			ArrayList<String> predicates = new ArrayList<String>();
 
-			ArrayList<String> allAndSubPreds = new ArrayList<String>();
-			ArrayList<String> allOrSubPreds = new ArrayList<String>();
-			ArrayList<String> allSubPreds = new ArrayList<String>();
-			ArrayList<String> lastSubPreds = new ArrayList<String>();
+
+			ArrayList<LogicPart> allSubPreds = new ArrayList<LogicPart>();
+			ArrayList<LogicPart> lastSubPreds = new ArrayList<LogicPart>();
 
 
 			String originalSubPred = methodName.substring(startStr.length());
@@ -361,90 +377,7 @@ public class ExecutedMethodParser {
 			String limitStr = null;
 
 
-			/*if(!originalSubPred.contains("OrderBy") && !originalSubPred.contains("Limit")) {
-				if (originalSubPred.contains(andSplit)) {
-					allAndSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-					allSubPreds.addAll(allAndSubPreds);
-					//for(String perSubPred:allAndSubPreds){
-
-
-					//}
-				}
-				else if (originalSubPred.contains(orSplit)) {
-
-					allOrSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-					allSubPreds.addAll(allOrSubPreds);
-				}
-				else {
-					allSubPreds.add(originalSubPred);
-				}
-			}else
-
-
-			if(originalSubPred.contains("OrderBy")){
-
-				orderByStr = originalSubPred.substring(originalSubPred.indexOf("OrderBy"), originalSubPred.length());
-				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("OrderBy"));
-
-
-
-
-				if (originalSubPred.contains(andSplit)) {
-					allAndSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-					allSubPreds.addAll(allAndSubPreds);
-				}
-				else if (originalSubPred.contains(orSplit)) {
-
-					allOrSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-					allSubPreds.addAll(allOrSubPreds);
-				}
-				else {
-					allSubPreds.add(originalSubPred);
-				}
-
-
-
-
-				if(!orderByStr.contains("Limit")) {
-					allSubPreds.add(orderByStr);
-				}else if(orderByStr.contains("Limit")) {
-
-					limitStr = orderByStr.substring(orderByStr.indexOf("Limit"), orderByStr.length());
-					String finalOrderByStr = orderByStr.substring(0, orderByStr.indexOf("Limit"));
-					allSubPreds.add(finalOrderByStr);
-					allSubPreds.add(limitStr);
-				}
-
-
-
-
-			}else
-			if(originalSubPred.contains("Limit")){
-
-				limitStr = originalSubPred.substring(originalSubPred.indexOf("Limit"), originalSubPred.length());
-				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("Limit"));
-
-
-
-
-				if (originalSubPred.contains(andSplit)) {
-					allAndSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-					allSubPreds.addAll(allAndSubPreds);
-				}
-				else if (originalSubPred.contains(orSplit)) {
-
-					allOrSubPreds.addAll(Arrays.asList(originalSubPred.split(andSplit)));
-					allSubPreds.addAll(allOrSubPreds);
-				}
-				else {
-					allSubPreds.add(originalSubPred);
-				}
-				limitStr ="Limit";
-				allSubPreds.add(limitStr);
-			}*/
-
-
-			if(originalSubPred.contains("OrderBy")){
+			/*if(originalSubPred.contains("OrderBy")){
 
 				orderByStr = originalSubPred.substring(originalSubPred.indexOf("OrderBy"), originalSubPred.length());
 				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("OrderBy"));
@@ -491,6 +424,65 @@ public class ExecutedMethodParser {
 			}
 
 			allSubPreds.addAll(lastSubPreds);
+*/
+
+
+
+
+
+			if(originalSubPred.contains("OrderBy")){
+
+				orderByStr = originalSubPred.substring(originalSubPred.indexOf("OrderBy"), originalSubPred.length());
+				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("OrderBy"));
+
+
+				if(!orderByStr.contains("Limit")) {
+					lastSubPreds.add(new LogicPart(orderByStr, null));
+				}else if(orderByStr.contains("Limit")) {
+
+					limitStr = orderByStr.substring(orderByStr.indexOf("Limit"), orderByStr.length());
+					String finalOrderByStr = orderByStr.substring(0, orderByStr.indexOf("Limit"));
+					lastSubPreds.add(new LogicPart(finalOrderByStr,null));
+					lastSubPreds.add(new LogicPart(limitStr, null));
+				}
+
+			}else
+			if(originalSubPred.contains("Limit")){
+
+				limitStr = originalSubPred.substring(originalSubPred.indexOf("Limit"), originalSubPred.length());
+				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("Limit"));
+				limitStr ="Limit";
+				lastSubPreds.add(new LogicPart(limitStr, null));
+			}
+
+
+			if(originalSubPred.contains("GroupByTime")){
+
+				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("GroupByTime"));
+				String groupStr ="GroupByTime";
+				//lastSubPreds.add(groupStr);
+				lastSubPreds.add(0, new LogicPart(groupStr,null));
+			}
+
+
+			String[] splits = originalSubPred.split(andSplit+"|"+orSplit);
+			if(splits.length > 0){
+				//first element don't use "and" or "or" to join
+				allSubPreds.add(new LogicPart(splits[0], null));
+				for(int i = 1; i < splits.length; i ++){
+					int refIndex = originalSubPred.indexOf(splits[i]);
+					String dd = originalSubPred.substring(refIndex-3, refIndex);
+					if(originalSubPred.substring(refIndex-3, refIndex).equals(andSplit)){
+						allSubPreds.add(new LogicPart(splits[i], andSplit.toLowerCase()));
+					}else if(originalSubPred.substring(refIndex-2, refIndex).equals(orSplit)){
+						allSubPreds.add(new LogicPart(splits[i], orSplit.toLowerCase()));
+					}
+				}
+			}else{
+				allSubPreds.add(new LogicPart(originalSubPred, null));
+			}
+
+			allSubPreds.addAll(lastSubPreds);
 
 
 
@@ -498,7 +490,11 @@ public class ExecutedMethodParser {
 			String consSql = sql;
 			int curCondNum = 0;
 			//subPred: AgeGreaterThan, NameLike, School,  TimeBetween, OrderByNameDesc
-			for(String subPred: allSubPreds){
+			//for(String subPred: allSubPreds){
+			for(int index = 0;  index < allSubPreds.size(); index ++){
+				LogicPart lp = allSubPreds.get(index);
+				String subPred = lp.getSubjectPredicate();
+				String logicConjection = lp.getLogicConjection();
 				//if(subPred.contains())
 				String curSub = null;
 				String curPred = null;
@@ -555,6 +551,9 @@ public class ExecutedMethodParser {
 					if(consSql.endsWith("and ")){
 						consSql = consSql.substring(0, consSql.length() - 4);
 					}
+					if(consSql.endsWith("or ")){
+						consSql = consSql.substring(0, consSql.length() - 3);
+					}
 					//consSql += " " + condStr;
 					//break;
 				}else if(curPred.equals("limit")){
@@ -562,6 +561,9 @@ public class ExecutedMethodParser {
 					condStr = " " + curPred + " " + Long.valueOf(String.valueOf(args[curCondNum]));
 					if(consSql.endsWith("and ")){
 						consSql = consSql.substring(0, consSql.length() - 4);
+					}
+					if(consSql.endsWith("or ")){
+						consSql = consSql.substring(0, consSql.length() - 3);
 					}
 					consSql += " " + condStr;
 					curCondNum ++;
@@ -573,7 +575,8 @@ public class ExecutedMethodParser {
 					consSql += condStr;
 				}else{
 					if(!condStr.contains("order by")) {
-						consSql += " and " + condStr;
+						//consSql += " and " + condStr;
+						consSql += " " + allSubPreds.get(index).getLogicConjection().toLowerCase() + " " + condStr;
 					}else{
 						consSql += " " + condStr;
 					}
