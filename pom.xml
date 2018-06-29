@@ -17,7 +17,7 @@
 
 <modules>
 <module>tsdb-express</module>
-<module>tsdb-test</module>
+<module>tsdb-express-examples</module>
 </modules>
 
 
