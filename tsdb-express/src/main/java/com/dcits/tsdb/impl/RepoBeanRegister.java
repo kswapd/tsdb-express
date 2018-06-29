@@ -1,9 +1,12 @@
 package com.dcits.tsdb.impl;
 
+import com.dcits.tsdb.annotations.BeanMethodBuilder;
 import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import com.dcits.tsdb.annotations.CustomRepoDeclared;
+import com.dcits.tsdb.interfaces.CustomRepo;
 import java.beans.Introspector;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,6 +24,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.StandardAnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.core.type.filter.RegexPatternTypeFilter;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -51,20 +56,24 @@ public class RepoBeanRegister implements ImportBeanDefinitionRegistrar,Environme
 					return metadata.isIndependent() && metadata.isInterface();
 				}
 			};
-			provider.addIncludeFilter(new AnnotationTypeFilter(CustomRepoDeclared.class));
+			//AnnotationTypeFilter
+			//provider.addIncludeFilter(new AnnotationTypeFilter(CustomRepoDeclared.class));
+			//provider.addExcludeFilter(new AssignableTypeFilter(CustomRepo.class));
 
-			// Scan all packages
+			//RegexPatternTypeFilter
+			//Pattern p = Pattern.compile(".*Repo.*");
+			//provider.addIncludeFilter(new RegexPatternTypeFilter(p));
+
+			//AnnotationTypeFilter
+			//provider.addExcludeFilter(new AnnotationTypeFilter(BeanMethodBuilder.class));
+
+			// Or use custom defined filter
+			provider.addIncludeFilter(new InfluxDBInterfaceFilter(CustomRepo.class));
 			for (String basePackage : basePackages) {
-				//System.out.println(basePackage);
 				for (BeanDefinition beanDefinition : provider.findCandidateComponents(basePackage)) {
-					//System.out.println(beanDefinition.getBeanClassName());
 					Class<?> clz = null;
 						try {
 							clz = Class.forName(beanDefinition.getBeanClassName());
-							/*System.out.println("interface:::" + clz.toString());
-							for (Type t : clz.getGenericInterfaces()) {
-								System.out.println(t);
-							}*/
 						}catch (ClassNotFoundException e) {
 							e.printStackTrace();
 						}
@@ -78,6 +87,7 @@ public class RepoBeanRegister implements ImportBeanDefinitionRegistrar,Environme
 					definition.setBeanClass(RepoProxyFactory.class);
 					definition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
 					// 注册bean名,一般为类名首字母小写
+					//System.out.println("Defining object:"+beanShortName);
 					registry.registerBeanDefinition(beanShortName, definition);
 				}
 			}

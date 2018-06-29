@@ -11,7 +11,6 @@ import java.util.List;
  * Created by kongxiangwen on 6/24/18 w:26.
  */
 
-@CustomRepoDeclared
 public interface RepoMemory extends CustomRepo<Memory> {
 
 	public List<Memory> findByIpAddrOrderByTimeDescLimit(String ip, int limit);

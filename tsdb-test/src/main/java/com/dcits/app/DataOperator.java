@@ -18,7 +18,8 @@ import org.springframework.stereotype.Component;
  * Created by kongxiangwen on 6/28/18 w:26.
  */
 
-@EnableRepoInterfaceScan({"com.dcits.repo.othermetrics","com.dcits.repo.memory"})
+//@EnableRepoInterfaceScan({"com.dcits.repo.othermetrics","com.dcits.repo.memory"})
+@EnableRepoInterfaceScan
 @Component
 public class DataOperator {
 	@Resource

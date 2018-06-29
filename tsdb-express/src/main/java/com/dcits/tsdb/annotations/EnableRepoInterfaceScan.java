@@ -16,5 +16,5 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({RepoBeanRegister.class})
 public @interface EnableRepoInterfaceScan {
-	String[] value() default {};
+	String[] value() default {"com.dcits"};
 }

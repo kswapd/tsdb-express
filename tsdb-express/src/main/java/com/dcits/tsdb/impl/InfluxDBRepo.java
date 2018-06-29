@@ -69,7 +69,7 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 		influxDB.createDatabase(dbName);
 		influxDB.enableBatch(maxBatchSize, maxBatchInterval, TimeUnit.MILLISECONDS);
 	}
-
+	@Deprecated
 	@Override
 	public void write(Point data)
 	{
@@ -77,6 +77,7 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 		influxDB.write(dbName, rpName, data);
 	}
 
+	@Deprecated
 	@Override
 	public QueryResult query(String queryLang)
 	{
@@ -84,6 +85,7 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 		return queryResult;
 
 	}
+	@Deprecated
 	@Override
 	//public List<T> queryBeans(String queryLang, final Class<T> clazz)
 	public List<T> queryBeans(String queryLang)
@@ -114,6 +116,7 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 	 * @param pojo
 	 * @param <T>
 	 */
+	@Deprecated
 	@Override
 	public  void writeBean(T pojo)
 	{
