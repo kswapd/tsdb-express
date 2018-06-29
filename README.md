@@ -5,7 +5,7 @@
 
 
 ## Introduction
-A time series database middleware to connect InfluxDB, support **JPA**-compatible entity definition and method declaration. After your measurement models definition and corresponding generic type interface declartion, you can  query and save influxDB data as a normal java bean object! 
+A time series database middleware to connect InfluxDB, support **JPA**-compatible entity definition and method declaration. After the measurement models definition and corresponding generic type interface declartion, you can  query and save influxDB data as a normal java bean. 
 
 
 ## Requirement
@@ -13,6 +13,12 @@ A time series database middleware to connect InfluxDB, support **JPA**-compatibl
 *  `JDK version 1.7 or later`
 *  `maven version 3.0+`
 * `Spring Framework 4.0.0 or later`
+
+## Features
+* It aims to response queries in real-time, which means every data point is indexed as it comes in and is immediately available in queries that should return in < 100ms.
+* JPA-compatible query syntax, support operator **AND,OR,NOT,BEFORE,AFTER,GREATERTHAN, LESSTHAN** etc.
+* Minimum dependency installation.
+* Do not need to implement your repository class, **just declare responding interface and use it**.
 
 ## Prerequisites
 * Install InfluxDB **version 1.5.2** and chronograf as InfluxDB web UI.
