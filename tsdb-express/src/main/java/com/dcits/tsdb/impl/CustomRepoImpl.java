@@ -39,6 +39,7 @@ import sun.security.util.Length;
  *
  * @author kongxiangwen
  */
+//kxw todo add database connection pool support
 //@Repository("tsdbRepo")
 public class CustomRepoImpl <T> implements CustomRepo<T> {
 
