@@ -2,8 +2,10 @@
 
 -----------
 
+![logo](http://dcits.com/statics/images/dcits/logo.png)
+
 ## Introduction
-A time series database middleware to connect InfluxDB, support **JPA**-compatible entity definition and method declaration. After the measurement models definition and corresponding generic type interface declartion, you can  query and save influxDB data as a normal java bean. 
+A time series database middleware to connect InfluxDB, support **JPA**-compatible entity definition and method declaration. After the measurement models definition and corresponding generic type interface declaration, you can  query and save influxDB data as a normal java bean. 
 
 
 ## Requirement
@@ -21,29 +23,10 @@ A time series database middleware to connect InfluxDB, support **JPA**-compatibl
 ## Prerequisites
 * Install InfluxDB **version 1.5.2** and chronograf as InfluxDB web UI.
 
-use docker-compose to setup as an example as belows
- ```
- version: "2"
- services:
-   influxdb:
-     image: influxdb:1.5.2
-     network_mode: "bridge"
-     volumes:
-       - /home/kxw/datas/influxdb_data:/var/lib/influxdb
-       - /home/kxw/dev/docker-devops/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
-     ports:
-       - "8086:8086"
-       - "8083:8083"
-     environment:
-       - INFLUXDB_ADMIN_ENABLED=true
-   chronograf:
-     image: quay.io/influxdb/chronograf:1.5.0.0
-     network_mode: "bridge"
-     ports:
-       - "8888:8888"
- 
- ```
- 
+  **You can easily setup and run influxDB and chronograf as a docker container service, the deployment and configuration files can be found [here](https://gitee.com/kswapd/docker-devops/tree/master/influxdb)**.
+
+
+
 * Create InfluxDB databases with retention policy.
 ```
 >influx -precision rfc3339
@@ -65,7 +48,7 @@ influxdb.maxBatchSize=10
 influxdb.maxBatchInterval=100
 ```
 
-## Compile
+## Compile && Install
 
  `mvn clean install`
  
@@ -127,18 +110,16 @@ public class Memory extends PercentMeasuerment {
 ```
 
 
-### influxDB repository definition
+### influxDB repository interface declaration
 
 ```
 //Cpu measurement repository
-@CustomRepoDeclared
 public interface RepoCpu extends CustomRepo<Cpu> {
 
 }
 ```
-Or more complex JPA-compatible method declaration
+Or more complex JPA-compatible interface declaration
 ```
-@CustomRepoDeclared
 public interface RepoMemory extends CustomRepo<Memory> {
 
 	public List<Memory> findByIpAddrOrderByTimeDescLimit(String ip, int limit);
