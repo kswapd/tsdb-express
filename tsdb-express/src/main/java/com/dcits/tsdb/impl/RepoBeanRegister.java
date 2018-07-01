@@ -1,12 +1,9 @@
 package com.dcits.tsdb.impl;
 
-import com.dcits.tsdb.annotations.BeanMethodBuilder;
 import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
-import com.dcits.tsdb.annotations.CustomRepoDeclared;
 import com.dcits.tsdb.interfaces.CustomRepo;
 import java.beans.Introspector;
 import java.util.Map;
-import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -23,9 +20,6 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.StandardAnnotationMetadata;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.core.type.filter.RegexPatternTypeFilter;
 import org.springframework.util.ClassUtils;
 
 /**

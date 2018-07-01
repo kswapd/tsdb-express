@@ -8,16 +8,47 @@
     <artifactId>tsdb</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <name>influxdb root repository</name>
+    <description>Java JPA interface to access the InfluxDB REST API</description>
+    <url>https://gitee.com/kswapd/tsdb-express.git</url>
 
-<packaging>pom</packaging>
+    <prerequisites>
+        <maven>3.2.1</maven>
+    </prerequisites>
 
-<properties>
-<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-</properties>
+    <licenses>
+        <license>
+            <name>The MIT License (MIT)</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <auto-service.version>1.0-rc2</auto-service.version>
+        <spring.version>4.1.6.RELEASE</spring.version>
+    </properties>
+
+    <scm>
+        <connection>scm:git:https://gitee.com/kswapd/tsdb-express.git</connection>
+        <developerConnection>scm:git:https://gitee.com/kswapd/tsdb-express.git</developerConnection>
+        <url>https://gitee.com/kswapd/tsdb-express.git</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>kxw</id>
+            <name>Kongxiangwen</name>
+            <email>kongxw@dcits.com</email>
+        </developer>
+    </developers>
+
+    <packaging>pom</packaging>
 
 <modules>
 <module>tsdb-express</module>
 <module>tsdb-express-examples</module>
+<module>influxdb-datasource</module>
 </modules>
 
 

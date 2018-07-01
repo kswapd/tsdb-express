@@ -7,11 +7,42 @@
     <groupId>dcits</groupId>
     <artifactId>tsdb-express</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>influxdb jpa repository</name>
+    <description>Java API to access the InfluxDB REST API</description>
+    <url>https://gitee.com/kswapd/tsdb-express.git</url>
 
+    <prerequisites>
+        <maven>3.2.1</maven>
+    </prerequisites>
+
+    <licenses>
+        <license>
+            <name>The MIT License (MIT)</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <auto-service.version>1.0-rc2</auto-service.version>
         <spring.version>4.1.6.RELEASE</spring.version>
     </properties>
+
+    <scm>
+        <connection>scm:git:https://gitee.com/kswapd/tsdb-express.git</connection>
+        <developerConnection>scm:git:https://gitee.com/kswapd/tsdb-express.git</developerConnection>
+        <url>https://gitee.com/kswapd/tsdb-express.git</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>kxw</id>
+            <name>Kongxiangwen</name>
+            <email>kongxw@dcits.com</email>
+        </developer>
+    </developers>
+
+
 
     <dependencies>
         <dependency>
@@ -20,10 +51,11 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.influxdb</groupId>
-            <artifactId>influxdb-java</artifactId>
-            <version>2.5</version>
+            <groupId>com.dcits</groupId>
+            <artifactId>influxdb-datasource</artifactId>
+            <version>2.5-SNAPSHOT</version>
         </dependency>
+
 
         <dependency>
             <groupId>com.google.auto.service</groupId>

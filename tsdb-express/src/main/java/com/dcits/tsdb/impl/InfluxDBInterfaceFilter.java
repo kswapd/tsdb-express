@@ -37,7 +37,7 @@ public class InfluxDBInterfaceFilter  implements TypeFilter {
 		catch (ClassNotFoundException e) {
 			return isMatch;
 		}
-		
+
 		//tp example:com.dcits.tsdb.interfaces.CustomRepo<com.dcits.repo.models.Memory>
 		Type []tp = p.getGenericInterfaces();
 		if( tp!=null && tp.length>0 ) {
