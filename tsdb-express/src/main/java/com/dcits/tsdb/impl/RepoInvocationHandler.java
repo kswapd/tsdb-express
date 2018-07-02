@@ -1,6 +1,7 @@
 package com.dcits.tsdb.impl;
 
 import com.dcits.tsdb.annotations.Measurement;
+import com.dcits.tsdb.annotations.QueryMeasurement;
 import com.dcits.tsdb.utils.ExecutedMethodInterceptor;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
@@ -32,6 +33,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 				//tp = t1;
 
 			}*/
+			//kxw todo other generic type check method?
 			if(t.toString().contains("<")){
 				Type t1 = ((ParameterizedType)t).getActualTypeArguments()[0];
 				Class<?> curClass = null;
@@ -65,6 +67,20 @@ public class RepoInvocationHandler implements InvocationHandler {
 		}
 		Objects.requireNonNull(measurementName, "measurementName");
 		return measurementName;
+	}
+
+	private String getQueryMeasurementName(Method method)
+	{
+
+
+		Class<?> clazz = interfaceClass;
+		String queryMeasurementName = null;
+		QueryMeasurement measure = (QueryMeasurement) method.getAnnotation(QueryMeasurement.class);
+		if(measure != null){
+			queryMeasurementName = measure.name();
+		}
+		//if null, use class name.
+		return queryMeasurementName;
 	}
 
 	/**
@@ -115,27 +131,22 @@ public class RepoInvocationHandler implements InvocationHandler {
 		}
 
 
-		/*if(typeArr!=null && typeArr.length > 0) {
-			for(int i = 0; i < typeArr.length; i ++){
-				//classArr[i] = Object.class;
-				//System.out.println("[[["+typeArr[i].getClass().getName());
-				if(typeArr[i].getClass().getName() == "sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl" || typeArr[i].getClass().getName() == "sun.reflect.generics.reflectiveObjects.TypeVariableImpl"){
-					classArr[i] = Object.class;
-				}
-			}
-		}*/
-
-		/*for(int i = 0; i < classArr.length; i ++){
-
-			System.out.println("ffff:"+classArr[i].getName());
-		}*/
-
 
 		if(implFoundMethod) {
 			Method me = repoClass.getDeclaredMethod(methodName, classArr);
 			return me.invoke(repoImpl, args);
 		}else if (methodName.contains("findBy") || methodName.contains("aggregateBy")) {
-				String measurementName = getMeasurementName(innerClass);
+				String useMeasurement = null;
+
+				//Use @QueryMeasurement of interface first. If this is null, use @Measuerment, if still null,
+				//use bean class name.
+				useMeasurement = getQueryMeasurementName(method);
+				if(StringUtils.isEmpty(useMeasurement)) {
+					useMeasurement = getMeasurementName(innerClass);
+
+				}
+
+
 				for (Method methods : repoClass.getDeclaredMethods()) {
 					if (methods.getName().equals("find")) {
 						baseQueryMethod = methods;
@@ -143,7 +154,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 					}
 				}
 				Objects.requireNonNull(baseQueryMethod, "baseQueryMethod");
-				String sqlQuery = ExecutedMethodInterceptor.getInfluxDBSql(measurementName, method, args);
+				String sqlQuery = ExecutedMethodInterceptor.getInfluxDBSql(useMeasurement, method, args);
 				Object obj = baseQueryMethod.invoke(repoImpl, sqlQuery);
 				return obj;
 
