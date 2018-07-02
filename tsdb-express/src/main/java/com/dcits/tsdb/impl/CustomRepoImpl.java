@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -58,6 +59,12 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	@Value("${influxdb.enableGzip}")
 	private boolean enableGzip;
 
+	@Value("${tsdb.datasource.type}")
+	private String dataSourceType;
+
+	@Value("${tsdb.datasource.maxConnectionSize}")
+	private int dataSourceMaxConnectionSize;
+
 	private static InfluxDBRepo influxDBengine = null;
 	private  InfluxDB influxDB = null;
 
@@ -72,14 +79,31 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		innerClass = cls;
 	}
 
-
+	private static int sCurRepoChooseId = 0;
+	private static Properties sRepoProp = null;
+	private static boolean sIsInited = false;
+	private static List<CustomRepoImpl> sRepoList;
+	private static int sMaxRepoNum = 0;
 	public static CustomRepoImpl getInstance()
 	{
-		if(inst == null){
-			inst = new CustomRepoImpl();
-			inst.init();
 
+		if(!sIsInited) {
+			sRepoList = new ArrayList<CustomRepoImpl>();
+			sRepoProp = tryLoadProps();
+			sMaxRepoNum = Integer.parseInt(sRepoProp.getProperty("tsdb.datasource.maxConnectionSize", "5"));
+			for (int i = 0; i < sMaxRepoNum ;i++) {
+				inst = new CustomRepoImpl();
+				inst.initByProp(sRepoProp);
+				sRepoList.add(inst);
+			}
+			sIsInited = true;
 		}
+		inst = sRepoList.get(sCurRepoChooseId);
+		sCurRepoChooseId ++;
+		if(sCurRepoChooseId > sMaxRepoNum-1){
+			sCurRepoChooseId = 0;
+		}
+
 		return inst;
 	}
 
@@ -93,18 +117,20 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	}
 
 
-	private Properties tryLoadProps()  {
+	private static Properties tryLoadProps()  {
 
 		InputStream input = null;
 		List<String> filenames = null;
 		Properties prop = null;
 
 			//InputStream is = null;
-			InputStream is = this.getClass().getClassLoader().getResourceAsStream("tsdb.properties");
+			//InputStream is = this.getClassLoader().getResourceAsStream("tsdb.properties");
+		InputStream is = CustomRepoImpl.class.getClassLoader().getResourceAsStream("tsdb.properties");
 			if(is == null){
 				try{
 
-					InputStream in = this.getClass().getResourceAsStream( "/" );
+					//InputStream in = this.getClass().getResourceAsStream( "/" );
+					InputStream in = CustomRepoImpl.class.getResourceAsStream( "/" );
 					BufferedReader br = new BufferedReader( new InputStreamReader( in ) );
 					String resource;
 					/*filenames = new ArrayList<>();
@@ -113,7 +139,8 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 					}*/
 					while( (resource = br.readLine()) != null ) {
 						if(resource.contains(".properties")){
-							is = this.getClass().getClassLoader().getResourceAsStream(resource);
+							//is = this.getClass().getClassLoader().getResourceAsStream(resource);
+							is = CustomRepoImpl.class.getClassLoader().getResourceAsStream(resource);
 							break;
 						}
 
@@ -143,7 +170,43 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 	}
 	@PostConstruct
-	public void init()
+	public void initByProp(Properties prop)
+	{
+
+
+		influxDBMapper = new InfluxDBResultMapper();
+
+
+		//Properties prop = tryLoadProps();
+		//System.out.println("=====++"+prop.getProperty("influxdb.dbName"));
+
+
+		this.address = prop.getProperty("influxdb.address");
+		this.user = prop.getProperty("influxdb.user", "root");
+		this.password = prop.getProperty("influxdb.password", "root");
+		this.dbName = prop.getProperty("influxdb.dbName");
+		this.maxBatchSize = Integer.parseInt(prop.getProperty("influxdb.maxBatchSize", "10"));
+		this.maxBatchInterval = Integer.parseInt(prop.getProperty("influxdb.maxBatchInterval", "30000"));
+		this.enableGzip = Boolean.parseBoolean(prop.getProperty("influxdb.enableGzip", "false"));
+
+		this.dataSourceType = prop.getProperty("tsdb.datasource.type", "influxDB");
+		this.dataSourceMaxConnectionSize = Integer.parseInt(prop.getProperty("tsdb.datasource.maxConnectionSize", "1"));
+		if(!this.dataSourceType.equals("influxDB")){
+			throw new IllegalArgumentException("Invalid datasource type:"+this.dataSourceType);
+		}
+
+		System.out.println("connecting influxDB addr:" + address);
+		influxDB = InfluxDBFactory.connect(address, user, password);
+		influxDB.createDatabase(dbName);
+		influxDB.enableBatch(maxBatchSize, maxBatchInterval, TimeUnit.MILLISECONDS);
+		if(this.enableGzip) {
+			influxDB.enableGzip();
+		}
+
+	}
+
+	@PostConstruct
+	public void initRef()
 	{
 
 
@@ -153,13 +216,21 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		Properties prop = tryLoadProps();
 		//System.out.println("=====++"+prop.getProperty("influxdb.dbName"));
 
+
 		this.address = prop.getProperty("influxdb.address");
-		this.user = prop.getProperty("influxdb.user");
-		this.password = prop.getProperty("influxdb.password");
+		this.user = prop.getProperty("influxdb.user", "root");
+		this.password = prop.getProperty("influxdb.password", "root");
 		this.dbName = prop.getProperty("influxdb.dbName");
-		this.maxBatchSize = Integer.parseInt(prop.getProperty("influxdb.maxBatchSize"));
-		this.maxBatchInterval = Integer.parseInt(prop.getProperty("influxdb.maxBatchInterval"));
+		this.maxBatchSize = Integer.parseInt(prop.getProperty("influxdb.maxBatchSize", "10"));
+		this.maxBatchInterval = Integer.parseInt(prop.getProperty("influxdb.maxBatchInterval", "30000"));
 		this.enableGzip = Boolean.parseBoolean(prop.getProperty("influxdb.enableGzip", "false"));
+
+		this.dataSourceType = prop.getProperty("tsdb.datasource.type", "influxDB");
+		this.dataSourceMaxConnectionSize = Integer.parseInt(prop.getProperty("tsdb.datasource.maxConnectionSize", "1"));
+		if(!this.dataSourceType.equals("influxDB")){
+			throw new IllegalArgumentException("Invalid datasource type:"+this.dataSourceType);
+		}
+
 		System.out.println("connecting influxDB addr:" + address);
 		influxDB = InfluxDBFactory.connect(address, user, password);
 		influxDB.createDatabase(dbName);
