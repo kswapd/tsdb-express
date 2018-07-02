@@ -54,6 +54,10 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	@Value("${influxdb.maxBatchInterval}")
 	private int maxBatchInterval;
 
+
+	@Value("${influxdb.enableGzip}")
+	private boolean enableGzip;
+
 	private static InfluxDBRepo influxDBengine = null;
 	private  InfluxDB influxDB = null;
 
@@ -155,12 +159,14 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		this.dbName = prop.getProperty("influxdb.dbName");
 		this.maxBatchSize = Integer.parseInt(prop.getProperty("influxdb.maxBatchSize"));
 		this.maxBatchInterval = Integer.parseInt(prop.getProperty("influxdb.maxBatchInterval"));
-
+		this.enableGzip = Boolean.parseBoolean(prop.getProperty("influxdb.enableGzip", "false"));
 		System.out.println("connecting influxDB addr:" + address);
 		influxDB = InfluxDBFactory.connect(address, user, password);
 		influxDB.createDatabase(dbName);
 		influxDB.enableBatch(maxBatchSize, maxBatchInterval, TimeUnit.MILLISECONDS);
-
+		if(this.enableGzip) {
+			influxDB.enableGzip();
+		}
 
 	}
 	@Deprecated

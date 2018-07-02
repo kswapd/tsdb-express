@@ -2,6 +2,7 @@ package com.dcits.tsdb.impl;
 
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.QueryMeasurement;
+import com.dcits.tsdb.exceptions.MethodInvocationException;
 import com.dcits.tsdb.utils.ExecutedMethodInterceptor;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
@@ -27,23 +28,10 @@ public class RepoInvocationHandler implements InvocationHandler {
 		this.interfaceClass = cls;
 		repoImpl = CustomRepoImpl.getInstance();
 		for (Type t : cls.getGenericInterfaces()) {
-			/*for (Type t1:((ParameterizedType)t).getActualTypeArguments()) {
-
-				System.out.println(t1 + "----------ok");
-				//tp = t1;
-
-			}*/
 			//kxw todo other generic type check method?
 			if(t.toString().contains("<")){
 				Type t1 = ((ParameterizedType)t).getActualTypeArguments()[0];
 				Class<?> curClass = null;
-				/*try {
-					Class<?> clazz = (Class<?>) t1;
-					//curClass = Class.forName(t1.getClass());
-				}
-				catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}*/
 				innerClass = (Class<?>) t1;
 				repoImpl.setInnerClass((Class<?>) t1);
 				break;
@@ -79,7 +67,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 		if(measure != null){
 			queryMeasurementName = measure.name();
 		}
-		//if null, use class name.
+		//if null, return null.
 		return queryMeasurementName;
 	}
 
@@ -115,7 +103,8 @@ public class RepoInvocationHandler implements InvocationHandler {
 			}
 		}
 
-
+		//as reason of type erasure in generic type,  method.invoke must use Object.class as generic type when the parameter
+		//type is T or list<T> etc.
 		if(implFoundMethod) {
 			if (args != null && args.length > 0) {
 				classArr = new Class<?>[args.length];
@@ -128,13 +117,10 @@ public class RepoInvocationHandler implements InvocationHandler {
 					}
 				}
 			}
-		}
 
-
-
-		if(implFoundMethod) {
 			Method me = repoClass.getDeclaredMethod(methodName, classArr);
 			return me.invoke(repoImpl, args);
+
 		}else if (methodName.contains("findBy") || methodName.contains("aggregateBy")) {
 				String useMeasurement = null;
 
@@ -158,8 +144,10 @@ public class RepoInvocationHandler implements InvocationHandler {
 				Object obj = baseQueryMethod.invoke(repoImpl, sqlQuery);
 				return obj;
 
+		}else{
+
+			throw new IllegalArgumentException("Invocation method not found:"+methodName);
 		}
-		return null;
 
 
 	}

@@ -93,7 +93,7 @@ public class DataOperator {
 				//List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 				//List<Memory> memList = memExpress.aggregateByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 
-				List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"time(30s),*", 5);
+				List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"time(1m),*", 5);
 				//List<Memory> memList = memExpress.aggregateByPercentMeanTimeAfterOrIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit(String.valueOf(before2Min),"192.168.1.100", String.valueOf(before2Min),"5s", 5);
 				//List<Memory> memList = memExpress.findByTimeAfterOrIpAddrIsAndTimeBeforeOrderByTimeDescLimit(String.valueOf(before2Min),"192.168.1.100", String.valueOf(before2Min), 5);
 
