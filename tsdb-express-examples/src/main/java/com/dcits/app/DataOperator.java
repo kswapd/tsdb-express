@@ -90,11 +90,11 @@ public class DataOperator {
 				//List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
 				//List<Memory> memList = memExpress.find("SELECT *  FROM memory WHERE ip_addr='192.168.1.100' order by time desc limit 3");
 				//List<Memory> memList = memExpress.findByIpAddrOrderByTimeDescLimit("192.168.1.100",5);
-				List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
+				//List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 				//List<Memory> memList = memExpress.aggregateByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 
-				//List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByTimeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"5s", 5);
-				//List<Memory> memList = memExpress.aggregateByPercentMeanTimeAfterOrIpAddrIsAndTimeBeforeGroupByTimeOrderByTimeDescLimit(String.valueOf(before2Min),"192.168.1.100", String.valueOf(before2Min),"5s", 5);
+				List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"time(5s),*", 5);
+				//List<Memory> memList = memExpress.aggregateByPercentMeanTimeAfterOrIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit(String.valueOf(before2Min),"192.168.1.100", String.valueOf(before2Min),"5s", 5);
 				//List<Memory> memList = memExpress.findByTimeAfterOrIpAddrIsAndTimeBeforeOrderByTimeDescLimit(String.valueOf(before2Min),"192.168.1.100", String.valueOf(before2Min), 5);
 
 				//Memory memList = memExpress.findLastOne();

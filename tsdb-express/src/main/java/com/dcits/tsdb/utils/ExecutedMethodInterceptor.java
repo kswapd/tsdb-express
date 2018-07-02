@@ -93,7 +93,7 @@ public class ExecutedMethodInterceptor {
 
 		ArrayList<String> allPredicates = new ArrayList<String>(Arrays.asList("LessThan", "GreaterThan", "After",
 				"Before", "Not", "Like","OrderBy", "Is", "Limit",
-				"Mean","Max","Min", "GroupByTime"));
+				"Mean","Max","Min", "GroupBy"));
 
 		//Supported operators: =   equal to <> not equal to != not equal to >   
 		// greater than >= greater than or equal to <   less than <= less than or equal to
@@ -111,7 +111,7 @@ public class ExecutedMethodInterceptor {
 		predicateSqlMap.put("Max", "max");
 		predicateSqlMap.put("Min", "min");
 		predicateSqlMap.put("Mean", "mean");
-		predicateSqlMap.put("GroupByTime", "group by time");
+		predicateSqlMap.put("GroupBy", "group by");
 
 
 		ArrayList<LogicPart> allSubPreds = new ArrayList<LogicPart>();
@@ -154,10 +154,10 @@ public class ExecutedMethodInterceptor {
 		}
 
 
-		if(originalSubPred.contains("GroupByTime")){
+		if(originalSubPred.contains("GroupBy")){
 
-			originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("GroupByTime"));
-			String groupStr ="GroupByTime";
+			originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("GroupBy"));
+			String groupStr ="GroupBy";
 			//lastSubPreds.add(groupStr);
 			lastSubPreds.add(0, new LogicPart(groupStr,null));
 		}
@@ -206,7 +206,7 @@ public class ExecutedMethodInterceptor {
 
 			for(String pred:allPredicates){
 
-				if(subPred.contains(pred) && !pred.equals("OrderBy") && !pred.equals("Limit")  && !pred.equals("GroupByTime")){
+				if(subPred.contains(pred) && !pred.equals("OrderBy") && !pred.equals("Limit")  && !pred.equals("GroupBy")){
 					curSub = subPred.split(pred)[0];
 					curPred = predicateSqlMap.get(pred);
 				}else if(subPred.contains(pred) && pred.equals("OrderBy")){
@@ -224,9 +224,9 @@ public class ExecutedMethodInterceptor {
 					curSub = "Limit";
 					curPred = "limit";
 				}
-				else if(subPred.contains(pred) && pred.equals("GroupByTime")){
-					curSub = "GroupByTime";
-					curPred = "group by time";
+				else if(subPred.contains(pred) && pred.equals("GroupBy")){
+					curSub = "GroupBy";
+					curPred = "group by";
 				}
 			}
 			if(StringUtils.isEmpty(curSub)){
@@ -234,7 +234,7 @@ public class ExecutedMethodInterceptor {
 				curPred = "=";
 			}
 
-			if(!curPred.equals("order by") && !curPred.equals("limit") && !curPred.equals("group by time")){
+			if(!curPred.equals("order by") && !curPred.equals("limit") && !curPred.equals("group by")){
 				String varName = Introspector.decapitalize(curSub);
 				if(curPred.equals("=")){
 					condStr =  "\"" + varName +"\" " + curPred + " '" + String.valueOf(args[curCondNum]) + "'";
@@ -252,9 +252,9 @@ public class ExecutedMethodInterceptor {
 				}
 				curCondNum ++;
 
-			}else if(curPred.equals("group by time")){
+			}else if(curPred.equals("group by")){
 				//String varName = Introspector.decapitalize(curSub);
-				condStr = " " + curPred + "(" + String.valueOf(args[curCondNum]) + ")";
+				condStr = " " + curPred + " " + String.valueOf(args[curCondNum]);
 				if(consSql.endsWith("and ")){
 					consSql = consSql.substring(0, consSql.length() - 4);
 				}
@@ -293,7 +293,7 @@ public class ExecutedMethodInterceptor {
 			if(curCondNum == 1){
 				consSql += condStr;
 			}else{
-				if(!condStr.contains("order by") && !condStr.contains("group by time")) {
+				if(!condStr.contains("order by") && !condStr.contains("group by")) {
 					//consSql += " and " + condStr;
 					consSql += " " + allSubPreds.get(index).getLogicConjection().toLowerCase() + " " + condStr;
 				}else{
@@ -433,10 +433,10 @@ public class ExecutedMethodInterceptor {
 			}
 
 
-			if(originalSubPred.contains("GroupByTime")){
+			if(originalSubPred.contains("GroupBy")){
 
-				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("GroupByTime"));
-				String groupStr ="GroupByTime";
+				originalSubPred = originalSubPred.substring(0,originalSubPred.indexOf("GroupBy"));
+				String groupStr ="GroupBy";
 				//lastSubPreds.add(groupStr);
 				lastSubPreds.add(0, new LogicPart(groupStr,null));
 			}

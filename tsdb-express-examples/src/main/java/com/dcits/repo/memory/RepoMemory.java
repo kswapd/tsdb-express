@@ -18,12 +18,12 @@ public interface RepoMemory extends CustomRepo<Memory> {
 	public List<Memory>  findByIpAddrAndTimeBeforeLimit(String ip, String time,int limit);
 	public List<Memory>  findByIpAddrAndTimeBeforeOrderByTimeDescLimit(String ip, String time,int limit);
 	public List<Memory>   aggregateByIpAddrAndTimeBeforeOrderByTimeDescLimit(String ip, String time,int limit);
-	public List<Memory>    aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByTimeOrderByTimeDescLimit(String ip, String time,String interval, int limit);
+	public List<Memory>    aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit(String ip, String time,String groups, int limit);
 
-	public List<Memory>    aggregateByPercentMeanIpAddrIsAndTimeBeforeOrTimeAfterGroupByTimeOrderByTimeDescLimit(String ip, String time,String interval, String after, int limit);
+	public List<Memory>    aggregateByPercentMeanIpAddrIsAndTimeBeforeOrTimeAfterGroupByOrderByTimeDescLimit(String ip, String time,String groups, String after, int limit);
 
 
-	public List<Memory>    aggregateByPercentMeanTimeAfterOrIpAddrIsAndTimeBeforeGroupByTimeOrderByTimeDescLimit(String after, String ip, String time,String interval,  int limit);
+	public List<Memory>    aggregateByPercentMeanTimeAfterOrIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit(String after, String ip, String time,String groups,  int limit);
 	public List<Memory>    findByTimeAfterOrIpAddrIsAndTimeBeforeOrderByTimeDescLimit(String after, String ip, String time, int limit);
 
 
