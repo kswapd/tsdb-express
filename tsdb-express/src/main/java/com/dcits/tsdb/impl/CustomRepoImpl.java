@@ -4,6 +4,7 @@ import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.exceptions.InfluxDBMapperException;
 import com.dcits.tsdb.interfaces.CustomRepo;
 import com.dcits.tsdb.utils.InfluxDBResultMapper;
+import java.beans.Introspector;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,8 @@ import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by kongxiangwen on 6/19/18 w:25.
@@ -293,7 +296,17 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 	private String getMeasurementName()
 	{
-		String measurementName = ((Measurement) innerClass.getAnnotation(Measurement.class)).name();
+		String measurementName = null;
+		Measurement measure = (Measurement) innerClass.getAnnotation(Measurement.class);
+		if(measure != null){
+			measurementName = measure.name();
+		}
+		//if null, use class name.
+		if(StringUtils.isEmpty(measurementName)){
+			String lastName = ClassUtils.getShortName(innerClass.getName());
+			measurementName = Introspector.decapitalize(lastName);
+
+		}
 		Objects.requireNonNull(measurementName, "measurementName");
 		return measurementName;
 	}

@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @Documented
 public @interface Measurement {
 
-	String name();
+	String name() default "";
 
 	TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
 }

@@ -2,12 +2,15 @@ package com.dcits.tsdb.impl;
 
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.utils.ExecutedMethodInterceptor;
+import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by kongxiangwen on 6/24/18 w:26.
@@ -47,6 +50,22 @@ public class RepoInvocationHandler implements InvocationHandler {
 		return Proxy.newProxyInstance(cls.getClassLoader(), new Class[] {interfaceClass}, this);
 	}
 
+	private String getMeasurementName(Class <?> clazz)
+	{
+		String measurementName = null;
+		Measurement measure = (Measurement) clazz.getAnnotation(Measurement.class);
+		if(measure != null){
+			measurementName = measure.name();
+		}
+		//if null, use class name.
+		if(StringUtils.isEmpty(measurementName)){
+			String lastName = ClassUtils.getShortName(clazz.getName());
+			measurementName = Introspector.decapitalize(lastName);
+
+		}
+		Objects.requireNonNull(measurementName, "measurementName");
+		return measurementName;
+	}
 
 	/**
 	 * Use CustomRepoImpl to proxy user repo interface, as type erasure of generic type class, method.invoke will not find method if
@@ -116,8 +135,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 			Method me = repoClass.getDeclaredMethod(methodName, classArr);
 			return me.invoke(repoImpl, args);
 		}else if (methodName.contains("findBy") || methodName.contains("aggregateBy")) {
-				String measurementName = ((Measurement) innerClass.getAnnotation(Measurement.class)).name();
-				Objects.requireNonNull(measurementName, "measurementName");
+				String measurementName = getMeasurementName(innerClass);
 				for (Method methods : repoClass.getDeclaredMethods()) {
 					if (methods.getName().equals("find")) {
 						baseQueryMethod = methods;

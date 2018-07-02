@@ -4,6 +4,7 @@ import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
 import com.dcits.tsdb.exceptions.InfluxDBMapperException;
+import java.beans.Introspector;
 import java.lang.reflect.Field;
 
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.QueryResult;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -68,7 +70,7 @@ public class InfluxDBResultMapper {
 	 * possible to define the values of your POJO (e.g. due to an unsupported field type).
 	 */
 	public <T> List<T> toPOJO(final QueryResult queryResult, final Class<T> clazz) throws InfluxDBMapperException {
-		throwExceptionIfMissingAnnotation(clazz);
+		//throwExceptionIfMissingAnnotation(clazz);
 		String measurementName = getMeasurementName(clazz);
 		return this.toPOJO(queryResult, clazz, measurementName);
 	}
@@ -198,7 +200,19 @@ public class InfluxDBResultMapper {
 	}
 
 	String getMeasurementName(final Class<?> clazz) {
-		return ((Measurement) clazz.getAnnotation(Measurement.class)).name();
+		String measurementName = null;
+		Measurement measure = (Measurement) clazz.getAnnotation(Measurement.class);
+		if(measure != null){
+			measurementName = measure.name();
+		}
+		//if null, use class name.
+		if(StringUtils.isEmpty(measurementName)){
+			String lastName = ClassUtils.getShortName(clazz.getName());
+			measurementName = Introspector.decapitalize(lastName);
+
+		}
+		Objects.requireNonNull(measurementName, "measurementName");
+		return measurementName;
 	}
 
 	<T> List<T> parseSeriesAs(final QueryResult.Series series, final Class<T> clazz, final List<T> result) {
@@ -343,8 +357,6 @@ public class InfluxDBResultMapper {
 	}
 
 
-
-
 	/**
 	 * bean to tsdb data
 	 * @param pojo
@@ -356,8 +368,9 @@ public class InfluxDBResultMapper {
 		Point p = null;
 		Class<?> clazzOriginal = pojo.getClass();
 
-		String measurementName = ((Measurement) clazzOriginal.getAnnotation(Measurement.class)).name();
-		Objects.requireNonNull(measurementName, "measurementName");
+		//String measurementName = ((Measurement) clazzOriginal.getAnnotation(Measurement.class)).name();
+		//Objects.requireNonNull(measurementName, "measurementName");
+		String measurementName = getMeasurementName(clazzOriginal);
 
 		Point.Builder pointBuilder = Point.measurement(measurementName);
 
