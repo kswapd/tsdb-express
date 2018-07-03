@@ -61,8 +61,9 @@ public class DataOperator {
 			mem.setPercent(Math.random());
 
 			//mem.setTime(String.valueOf(System.currentTimeMillis()));
-			mem.setTime(String.valueOf(System.currentTimeMillis()));
+			//mem.setTime(String.valueOf(System.currentTimeMillis()));
 
+			mem.setTime(System.currentTimeMillis());
 			long before2Min = System.currentTimeMillis()  - 5*60 * 1000;		//utc time
 
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -83,7 +84,12 @@ public class DataOperator {
 					System.out.println(d.toString());
 				}*/
 
-				Memory o = memExpress.findLastOne();
+				List<Memory> oo = memExpress.findByIpAddrIsOrderByTimeDescLimit("192.168.1.100",1);
+				Memory o = null;
+				if(oo.size() > 0){
+					o = oo.get(0);
+				}
+
 				long num = memExpress.count();
 				System.out.println(String.format("%s,%d",  o.toString(),num));
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");

@@ -389,8 +389,13 @@ public class InfluxDBResultMapper {
 
 					//if is time field
 					if(field.getName().equals("time")){
-						if(!StringUtils.isEmpty(value)) {
-							pointBuilder.time(Long.parseLong(String.valueOf(value)), TimeUnit.MILLISECONDS);
+						//if(!StringUtils.isEmpty(value))
+						//if time is other type, leave pointBuilder.time = null, that will be assigned later.
+						if(value != null && value instanceof Long)
+						{
+							//pointBuilder.time(Long.parseLong(String.valueOf(value)), TimeUnit.MILLISECONDS);
+							pointBuilder.time((Long) value, TimeUnit.MILLISECONDS);
+							continue;
 						}
 					}
 
@@ -436,7 +441,7 @@ public class InfluxDBResultMapper {
 					}
 					if (Long.class.isAssignableFrom(fieldType)) {
 						if (value instanceof Long) {
-							pointBuilder.addField(colAnnotation.name(), Long.valueOf(((Double) value).longValue()));
+							pointBuilder.addField(colAnnotation.name(), Long.valueOf(((Long) value).longValue()));
 						}
 					}
 					if (Integer.class.isAssignableFrom(fieldType)) {

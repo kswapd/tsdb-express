@@ -90,7 +90,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		if(!sIsInited) {
 			sRepoList = new ArrayList<CustomRepoImpl>();
 			sRepoProp = tryLoadProps();
-			sMaxRepoNum = Integer.parseInt(sRepoProp.getProperty("tsdb.datasource.maxConnectionSize", "5"));
+			sMaxRepoNum = Integer.parseInt(sRepoProp.getProperty("tsdb.datasource.maxConnectionSize", "1"));
 			for (int i = 0; i < sMaxRepoNum ;i++) {
 				inst = new CustomRepoImpl();
 				inst.initByProp(sRepoProp);
@@ -251,7 +251,9 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	@Override
 	public QueryResult query(String queryLang)
 	{
-		QueryResult queryResult = influxDB.query(new Query(queryLang, dbName));
+
+
+		QueryResult queryResult = influxDB.query(new Query(queryLang, dbName), TimeUnit.MILLISECONDS);
 		return queryResult;
 
 	}
