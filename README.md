@@ -148,8 +148,11 @@ package com.dcits.app;
 
 @EnableRepoInterfaceScan({"com.dcits.repo"});
 public class Application {
-...
-...
+	@Resource
+	RepoMemory memExpress;
+
+	...
+	...
 }
 ```
 
