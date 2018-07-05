@@ -1,6 +1,7 @@
 # TSDB-EXPRESS
 
 -----------
+[![Build Status](https://travis-ci.org/kswapd/tsdb-express.svg?branch=master)](https://travis-ci.org/kswapd/tsdb-express)
 
 ![logo](http://dcits.com/statics/images/dcits/logo.png)
 
