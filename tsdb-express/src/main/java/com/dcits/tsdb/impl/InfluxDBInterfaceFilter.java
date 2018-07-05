@@ -30,8 +30,9 @@ public class InfluxDBInterfaceFilter  implements TypeFilter {
 
 		boolean isMatch = false;
 		String repoName = ClassUtils.getShortName(this.dbClass.getName());
-		Class<?> p = null;
+		/*Class<?> p = null;
 		try {
+
 			p = Class.forName(metadata.getClassName());
 		}
 		catch (ClassNotFoundException e) {
@@ -47,7 +48,22 @@ public class InfluxDBInterfaceFilter  implements TypeFilter {
 					break;
 				}
 			}
+		}*/
+
+		if(metadata.isInterface()){
+			String[] interfaceNames = metadata.getInterfaceNames();
+			if(interfaceNames != null && interfaceNames.length > 0){
+				for(String interfaceName:interfaceNames){
+					if(interfaceName.contains(repoName)){
+						isMatch = true;
+						break;
+					}
+				}
+			}
 		}
+
+
+
 		return isMatch;
 
 	}
