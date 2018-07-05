@@ -1,10 +1,10 @@
 # TSDB-EXPRESS
 
------------
 [![Build Status](https://travis-ci.org/kswapd/tsdb-express.svg?branch=master)](https://travis-ci.org/kswapd/tsdb-express)
 [![GitHub release](https://img.shields.io/badge/version-1.2.0-519dd9.svg)](https://github.com/kswapd/tsdb-express/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+-----------
 ## Introduction
 A time series database object-relational mapping(ORM) library, support **JPA**-compatible entity definition and method declaration. After the measurement models definition and corresponding generic type interface declaration, you can  query and save influxDB data as a normal java bean. 
 
