@@ -84,13 +84,14 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	private static boolean sIsInited = false;
 	private static List<CustomRepoImpl> sRepoList;
 	private static int sMaxRepoNum = 0;
+	
 	public static CustomRepoImpl getInstance()
 	{
 
 		if(!sIsInited) {
 			sRepoList = new ArrayList<CustomRepoImpl>();
 			sRepoProp = tryLoadProps();
-			sMaxRepoNum = Integer.parseInt(sRepoProp.getProperty("tsdb.datasource.maxConnectionSize", "1"));
+			sMaxRepoNum = Integer.parseInt(sRepoProp.getProperty("tsdb.datasource.maxSize", "1"));
 			for (int i = 0; i < sMaxRepoNum ;i++) {
 				inst = new CustomRepoImpl();
 				inst.initByProp(sRepoProp);
@@ -98,12 +99,16 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 			}
 			sIsInited = true;
 		}
+		//System.out.println("currrent :"+sCurRepoChooseId+" sMaxRepoNum:"+sMaxRepoNum);
+
 		inst = sRepoList.get(sCurRepoChooseId);
-		sCurRepoChooseId ++;
+		/*sCurRepoChooseId ++;
 		if(sCurRepoChooseId > sMaxRepoNum-1){
 			sCurRepoChooseId = 0;
-		}
+		}*/
 
+		sCurRepoChooseId = ++sCurRepoChooseId  % sMaxRepoNum;
+		//System.out.println("sCurRepoChooseId:"+sCurRepoChooseId+" sMaxRepoNum:"+sMaxRepoNum);
 		return inst;
 	}
 
@@ -190,7 +195,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		this.enableGzip = Boolean.parseBoolean(prop.getProperty("influxdb.enableGzip", "false"));
 
 		this.dataSourceType = prop.getProperty("tsdb.datasource.type", "influxDB");
-		this.dataSourceMaxConnectionSize = Integer.parseInt(prop.getProperty("tsdb.datasource.maxConnectionSize", "1"));
+		this.dataSourceMaxConnectionSize = Integer.parseInt(prop.getProperty("tsdb.datasource.maxSize", "1"));
 		if(!this.dataSourceType.equals("influxDB")){
 			throw new IllegalArgumentException("Invalid datasource type:"+this.dataSourceType);
 		}
@@ -226,7 +231,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		this.enableGzip = Boolean.parseBoolean(prop.getProperty("influxdb.enableGzip", "false"));
 
 		this.dataSourceType = prop.getProperty("tsdb.datasource.type", "influxDB");
-		this.dataSourceMaxConnectionSize = Integer.parseInt(prop.getProperty("tsdb.datasource.maxConnectionSize", "1"));
+		this.dataSourceMaxConnectionSize = Integer.parseInt(prop.getProperty("tsdb.datasource.maxSize", "1"));
 		if(!this.dataSourceType.equals("influxDB")){
 			throw new IllegalArgumentException("Invalid datasource type:"+this.dataSourceType);
 		}

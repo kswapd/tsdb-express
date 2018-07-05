@@ -91,6 +91,7 @@ public class DataOperator {
 				}
 
 				long num = memExpress.count();
+				//memExpress.queryBeans("select mean(val1) as val1, mean(val2) as val2 from memory where tim... group by time(30s),*");
 				System.out.println(String.format("%s,%d",  o.toString(),num));
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
 				//List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
