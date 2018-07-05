@@ -5,7 +5,7 @@
 ![logo](http://dcits.com/statics/images/dcits/logo.png)
 
 ## Introduction
-A time series database middleware to connect InfluxDB, support **JPA**-compatible entity definition and method declaration. After the measurement models definition and corresponding generic type interface declaration, you can  query and save influxDB data as a normal java bean. 
+A time series database object-relational mapping(ORM) library, support **JPA**-compatible entity definition and method declaration. After the measurement models definition and corresponding generic type interface declaration, you can  query and save influxDB data as a normal java bean. 
 
 
 ## Requirement
@@ -17,8 +17,10 @@ A time series database middleware to connect InfluxDB, support **JPA**-compatibl
 ## Features
 * It aims to response queries in real-time, which means every data point is indexed as it comes in and is immediately available in queries that should return in < 100ms.
 * JPA-compatible query syntax, support operator **AND,OR,NOT,BEFORE,AFTER,GREATERTHAN, LESSTHAN** etc.
+* No redundant XML configuration, annotation type programming.
+* Support data source connection pool, improve data access performance.
+* Do not need to implement repository operator, **just declare corresponding interface and use it**.
 * Minimum dependency installation.
-* Do not need to implement your repository class, **just declare responding interface and use it**.
 
 ## Prerequisites
 * Install InfluxDB **version 1.5.2** and chronograf as InfluxDB web UI.
@@ -114,12 +116,14 @@ public class Memory extends PercentMeasuerment {
 
 ```
 //Cpu measurement repository
+package com.dcits.repo.othermetrics;
 public interface RepoCpu extends CustomRepo<Cpu> {
 
 }
 ```
 Or more complex JPA-compatible interface declaration
 ```
+package com.dcits.repo.memory;
 public interface RepoMemory extends CustomRepo<Memory> {
 
 	public List<Memory> findByIpAddrOrderByTimeDescLimit(String ip, int limit);
@@ -131,9 +135,24 @@ public interface RepoMemory extends CustomRepo<Memory> {
 
 ```
 
+To make interface above be found and implemented, we add package that contain interfaces within annotation:
+```
+package com.dcits.app;
 
 
-### JPA method usage
+@EnableRepoInterfaceScan({"com.dcits.repo"});
+public class Application {
+...
+...
+}
+```
+
+To make this annotation acitve,  add this package in your xml:
+```
+<context:component-scan base-package="com.dcits.app"></context:component-scan>
+```
+
+### JPA method usage examples
 ```
 
     //corresponding influxdb sql: select * from memory where "ipAddr"="192.168.1.100" order by time desc limit 5
