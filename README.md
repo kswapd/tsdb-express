@@ -38,16 +38,22 @@ A time series database object-relational mapping(ORM) library, support **JPA**-c
 * Add resource file tsdb.properties in your project.
 ```
 #tsdb.properties
-#influxdb url
-influxdb.address=http://10.88.2.104:8086
+#optional param, default influxDB
+tsdb.datasource.type=influxDB
+#optional param, data source connection pool size,  default 1
+tsdb.datasource.maxSize=2
+
+#influxDB url
+influxdb.address=http://10.88.2.103:8086
 influxdb.user=root
 influxdb.password=root
 influxdb.dbName=metrics_db3
 influxdb.rpName=rp_3h
-#All data will be flushed into database when data size is larger than maxBatchSize.
 influxdb.maxBatchSize=10
-#All data will be flushed into database when time interval of data timestamp from now is larger than maxBatchInterval(milliseconds).
 influxdb.maxBatchInterval=100
+
+#optional param, add http transport compression, default false
+influxdb.enableGzip=false
 ```
 
 ## Compile && Install
