@@ -226,6 +226,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		this.user = prop.getProperty("influxdb.user", "root");
 		this.password = prop.getProperty("influxdb.password", "root");
 		this.dbName = prop.getProperty("influxdb.dbName");
+		this.rpName = prop.getProperty("influxdb.rpName");
 		this.maxBatchSize = Integer.parseInt(prop.getProperty("influxdb.maxBatchSize", "10"));
 		this.maxBatchInterval = Integer.parseInt(prop.getProperty("influxdb.maxBatchInterval", "30000"));
 		this.enableGzip = Boolean.parseBoolean(prop.getProperty("influxdb.enableGzip", "false"));
