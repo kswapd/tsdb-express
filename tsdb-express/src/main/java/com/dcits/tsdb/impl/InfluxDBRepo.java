@@ -79,6 +79,13 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 
 	@Deprecated
 	@Override
+	public void write(Point data, String rp)
+	{
+
+
+	}
+	@Deprecated
+	@Override
 	public QueryResult query(String queryLang)
 	{
 		QueryResult queryResult = influxDB.query(new Query(queryLang, dbName));

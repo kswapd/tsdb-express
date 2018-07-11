@@ -4,6 +4,7 @@ import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.exceptions.InfluxDBMapperException;
 import com.dcits.tsdb.interfaces.CustomRepo;
 import com.dcits.tsdb.utils.InfluxDBResultMapper;
+import com.dcits.tsdb.utils.MeasurementUtils;
 import java.beans.Introspector;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -250,8 +251,14 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	@Override
 	public void write(Point data)
 	{
+		write(data,rpName);
+	}
 
-		influxDB.write(dbName, rpName, data);
+	@Deprecated
+	@Override
+	public void write(Point data, String retentionPolicy)
+	{
+		influxDB.write(dbName, retentionPolicy, data);
 	}
 	@Deprecated
 	@Override
@@ -375,7 +382,11 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		write(data);
+		if(StringUtils.isEmpty(data.getRetentionPolicy())) {
+			write(data);
+		}else{
+			write(data,data.getRetentionPolicy());
+		}
 		return pojo;
 	}
 
@@ -385,7 +396,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 		T ret = null;
 
-		String measurementName = getMeasurementName();
+		String measurementName = MeasurementUtils.getMeasurementName(innerClass);
 		String query = "select * from " + measurementName + " order by time desc limit 1";
 		List<T> li = queryBeans(query);
 		if(li != null && li.size() > 0){
@@ -398,7 +409,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	public long count() {
 
 		long num = 0;
-		String measurementName = getMeasurementName();
+		String measurementName = MeasurementUtils.getMeasurementName(innerClass);
 		String queryLang = "select count(*) from " + measurementName;
 		QueryResult queryResult = query(queryLang);
 
@@ -412,22 +423,6 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		return num;
 	}
 
-	private String getMeasurementName()
-	{
-		String measurementName = null;
-		Measurement measure = (Measurement) innerClass.getAnnotation(Measurement.class);
-		if(measure != null){
-			measurementName = measure.name();
-		}
-		//if null, use class name.
-		if(StringUtils.isEmpty(measurementName)){
-			String lastName = ClassUtils.getShortName(innerClass.getName());
-			measurementName = Introspector.decapitalize(lastName);
-
-		}
-		Objects.requireNonNull(measurementName, "measurementName");
-		return measurementName;
-	}
 
 	public <T> List<T> findByTime(String queryLang, final Class<T> clazz)
 	{

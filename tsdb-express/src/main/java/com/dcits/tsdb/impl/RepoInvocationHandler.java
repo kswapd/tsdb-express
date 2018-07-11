@@ -4,6 +4,7 @@ import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.QueryMeasurement;
 import com.dcits.tsdb.exceptions.MethodInvocationException;
 import com.dcits.tsdb.utils.ExecutedMethodInterceptor;
+import com.dcits.tsdb.utils.MeasurementUtils;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -41,22 +42,7 @@ public class RepoInvocationHandler implements InvocationHandler {
 		return Proxy.newProxyInstance(cls.getClassLoader(), new Class[] {interfaceClass}, this);
 	}
 
-	private String getMeasurementName(Class <?> clazz)
-	{
-		String measurementName = null;
-		Measurement measure = (Measurement) clazz.getAnnotation(Measurement.class);
-		if(measure != null){
-			measurementName = measure.name();
-		}
-		//if null, use class name.
-		if(StringUtils.isEmpty(measurementName)){
-			String lastName = ClassUtils.getShortName(clazz.getName());
-			measurementName = Introspector.decapitalize(lastName);
 
-		}
-		Objects.requireNonNull(measurementName, "measurementName");
-		return measurementName;
-	}
 
 	TimeUnit getTimeUnit(Class <?> clazz) {
 		TimeUnit tu = TimeUnit.MILLISECONDS;
@@ -150,10 +136,10 @@ public class RepoInvocationHandler implements InvocationHandler {
 				TimeUnit tu = TimeUnit.MILLISECONDS;
 				//Use @QueryMeasurement of interface first. If this is null, use @Measuerment, if still null,
 				//use bean class name.
-				useMeasurement = getQueryMeasurementName(method);
+				useMeasurement = MeasurementUtils.getQueryMeasurementName(method);
 				tu = getQueryTimeUnit(method);
 				if(StringUtils.isEmpty(useMeasurement)) {
-					useMeasurement = getMeasurementName(innerClass);
+					useMeasurement = MeasurementUtils.getMeasurementName(innerClass);
 					tu = getTimeUnit(innerClass);
 
 				}

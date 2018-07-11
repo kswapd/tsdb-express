@@ -11,6 +11,8 @@ import org.influxdb.dto.QueryResult;
 public interface TSDBExpress <T>{
 	@Deprecated
 	void write(Point data);
+	@Deprecated
+	void write(Point data, String retentionPolicy);
 
 	@Deprecated
 	QueryResult query(String queryLang);

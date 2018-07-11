@@ -72,7 +72,7 @@ public class InfluxDBResultMapper {
 	 */
 	public <T> List<T> toPOJO(final QueryResult queryResult, final Class<T> clazz) throws InfluxDBMapperException {
 		//throwExceptionIfMissingAnnotation(clazz);
-		String measurementName = getMeasurementName(clazz);
+		String measurementName = MeasurementUtils.getMeasurementName(clazz);
 		return this.toPOJO(queryResult, clazz, measurementName);
 	}
 
@@ -215,21 +215,7 @@ public class InfluxDBResultMapper {
 		return tu;
 	}
 
-	String getMeasurementName(final Class<?> clazz) {
-		String measurementName = null;
-		Measurement measure = (Measurement) clazz.getAnnotation(Measurement.class);
-		if(measure != null){
-			measurementName = measure.name();
-		}
-		//if null, use class name.
-		if(StringUtils.isEmpty(measurementName)){
-			String lastName = ClassUtils.getShortName(clazz.getName());
-			measurementName = Introspector.decapitalize(lastName);
 
-		}
-		Objects.requireNonNull(measurementName, "measurementName");
-		return measurementName;
-	}
 
 	<T> List<T> parseSeriesAs(final QueryResult.Series series, final Class<T> clazz, final List<T> result) {
 		int columnSize = series.getColumns().size();
@@ -384,11 +370,26 @@ public class InfluxDBResultMapper {
 		Point p = null;
 		Class<?> clazzOriginal = pojo.getClass();
 
-		//String measurementName = ((Measurement) clazzOriginal.getAnnotation(Measurement.class)).name();
-		//Objects.requireNonNull(measurementName, "measurementName");
-		String measurementName = getMeasurementName(clazzOriginal);
 		TimeUnit tu = getTimeUnit(clazzOriginal);
-		Point.Builder pointBuilder = Point.measurement(measurementName);
+
+		//if measurment contains retention policy, split it by '.' and use
+		Point.Builder pointBuilder = null;
+		String measurementName = MeasurementUtils.getMeasurementName(clazzOriginal);
+		String splitRegex = ".";
+		if(measurementName.contains(splitRegex)){
+			String[] measurementNameArr = measurementName.split(splitRegex);
+			//rp_3d.cpu
+			if(measurementNameArr.length == 2) {
+				pointBuilder = Point.measurement(measurementNameArr[1], measurementNameArr[0]);
+			}else if(measurementNameArr.length == 3){
+				//database.rp_3d.cpu, don't use database.
+				pointBuilder = Point.measurement(measurementNameArr[2], measurementNameArr[1]);
+			}
+
+		}else{
+			pointBuilder = Point.measurement(measurementName);
+		}
+		//Point.Builder pointBuilder = Point.measurement(measurementName);
 
 
 		for (Class<?> clazz = clazzOriginal; clazz != Object.class; clazz = clazz.getSuperclass()){

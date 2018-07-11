@@ -22,6 +22,7 @@ import com.google.common.escape.Escapers;
  */
 public class Point {
   private String measurement;
+  private String retentionPolicy;
   private Map<String, String> tags;
   private Long time;
   private TimeUnit precision = TimeUnit.NANOSECONDS;
@@ -50,6 +51,10 @@ public class Point {
     return new Builder(measurement);
   }
 
+  public static Builder measurement(final String measurement, final String retentionPolicy) {
+    return new Builder(measurement, retentionPolicy);
+  }
+
   /**
    * Builder for a new Point.
    *
@@ -58,6 +63,7 @@ public class Point {
    */
   public static final class Builder {
     private final String measurement;
+    private String retentionPolicy;
     private final Map<String, String> tags = new TreeMap<>();
     private Long time;
     private TimeUnit precision = TimeUnit.NANOSECONDS;
@@ -68,6 +74,11 @@ public class Point {
      */
     Builder(final String measurement) {
       this.measurement = measurement;
+    }
+
+    Builder(final String measurement, final String retentionPolicy) {
+      this.measurement = measurement;
+      this.retentionPolicy = retentionPolicy;
     }
 
     /**
@@ -204,6 +215,7 @@ public class Point {
       Point point = new Point();
       point.setFields(this.fields);
       point.setMeasurement(this.measurement);
+      point.setRetentionPolicy(this.retentionPolicy);
       if (this.time != null) {
           point.setTime(this.time);
           point.setPrecision(this.precision);
@@ -220,11 +232,24 @@ public class Point {
    * @param measurement
    *            the measurement to set
    */
-  void setMeasurement(final String measurement) {
+  public void setMeasurement(final String measurement) {
     this.measurement = measurement;
+  }
+  public String getMeasurement() {
+    return this.measurement;
+  }
+
+
+  public String getRetentionPolicy() {
+    return retentionPolicy;
+  }
+
+  public void setRetentionPolicy(String retentionPolicy) {
+    this.retentionPolicy = retentionPolicy;
   }
 
   /**
+
    * @param time
    *            the time to set
    */
