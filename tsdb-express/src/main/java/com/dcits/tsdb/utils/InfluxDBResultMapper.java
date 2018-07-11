@@ -382,8 +382,10 @@ public class InfluxDBResultMapper {
 			if(measurementNameArr.length == 2) {
 				pointBuilder = Point.measurement(measurementNameArr[1], measurementNameArr[0]);
 			}else if(measurementNameArr.length == 3){
-				//database.rp_3d.cpu, don't use database.
+				//database.rp_3d.cpu, discard use database name that will be set at property file.
 				pointBuilder = Point.measurement(measurementNameArr[2], measurementNameArr[1]);
+			}else{
+				throw new InfluxDBMapperException("Invalid spot num in measurement name:"+measurementName);
 			}
 
 		}else{
