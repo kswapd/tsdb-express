@@ -1,5 +1,6 @@
 package com.dcits.tsdb.utils;
 
+import com.dcits.tsdb.annotations.AggregatedColumn;
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
@@ -187,6 +188,11 @@ public class InfluxDBResultMapper {
 					if (tagAnnotation != null) {
 						influxColumnAndFieldMap.put(tagAnnotation.name(), field);
 					}
+
+					AggregatedColumn aggColAnnotation = field.getAnnotation(AggregatedColumn.class);
+					if (aggColAnnotation != null) {
+						influxColumnAndFieldMap.put(aggColAnnotation.name(), field);
+					}
 				}
 
 			}
@@ -197,6 +203,16 @@ public class InfluxDBResultMapper {
 
 
 		}
+	}
+	TimeUnit getTimeUnit(final Class<?> clazz) {
+		TimeUnit tu = TimeUnit.MILLISECONDS;
+		Measurement measure = (Measurement) clazz.getAnnotation(Measurement.class);
+		if(measure != null){
+			tu = measure.timeUnit();
+		}
+
+		Objects.requireNonNull(tu, "Measurement.TimeUnit");
+		return tu;
 	}
 
 	String getMeasurementName(final Class<?> clazz) {
@@ -371,7 +387,7 @@ public class InfluxDBResultMapper {
 		//String measurementName = ((Measurement) clazzOriginal.getAnnotation(Measurement.class)).name();
 		//Objects.requireNonNull(measurementName, "measurementName");
 		String measurementName = getMeasurementName(clazzOriginal);
-
+		TimeUnit tu = getTimeUnit(clazzOriginal);
 		Point.Builder pointBuilder = Point.measurement(measurementName);
 
 
@@ -394,7 +410,8 @@ public class InfluxDBResultMapper {
 						if(value != null && value instanceof Long)
 						{
 							//pointBuilder.time(Long.parseLong(String.valueOf(value)), TimeUnit.MILLISECONDS);
-							pointBuilder.time((Long) value, TimeUnit.MILLISECONDS);
+
+							pointBuilder.time((Long) value, tu);
 							continue;
 						}
 					}

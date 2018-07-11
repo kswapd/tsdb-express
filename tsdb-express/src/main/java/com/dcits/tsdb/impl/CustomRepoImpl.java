@@ -263,6 +263,18 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		return queryResult;
 
 	}
+
+	@Deprecated
+	@Override
+	public QueryResult query(String queryLang, TimeUnit tu)
+	{
+
+
+		QueryResult queryResult = influxDB.query(new Query(queryLang, dbName), tu);
+		return queryResult;
+
+	}
+
 	@Deprecated
 	@Override
 	public List<T> queryBeans(String queryLang)
@@ -290,6 +302,27 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 
 		QueryResult queryResult = query(queryLang);
+		//InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
+		List<T> pojoList = null;
+
+		try {
+			pojoList = influxDBMapper.toPOJO(queryResult, innerClass);
+		}
+		catch (RuntimeException e){
+
+		}
+
+		return pojoList;
+	}
+
+
+
+	@Override
+	public List<T> find(String queryLang, TimeUnit tu)
+	{
+
+
+		QueryResult queryResult = query(queryLang, tu);
 		//InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
 		List<T> pojoList = null;
 

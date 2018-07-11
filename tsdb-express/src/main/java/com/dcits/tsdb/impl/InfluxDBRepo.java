@@ -85,6 +85,14 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 		return queryResult;
 
 	}
+
+	@Deprecated
+	@Override
+	public QueryResult query(String queryLang, TimeUnit tu)
+	{
+		return null;
+
+	}
 	@Deprecated
 	@Override
 	//public List<T> queryBeans(String queryLang, final Class<T> clazz)
@@ -110,7 +118,10 @@ public class InfluxDBRepo<T> implements CustomRepo<T> {
 		return null;
 	}
 
-
+	@Override
+	public List<T> find(String queryLang, TimeUnit tu) {
+		return null;
+	}
 	/**
 	 * write bean data to influxdb
 	 * @param pojo

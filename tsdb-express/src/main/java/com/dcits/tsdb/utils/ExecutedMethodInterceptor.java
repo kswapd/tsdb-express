@@ -52,12 +52,12 @@ public class ExecutedMethodInterceptor {
 		String originalStr = methodName.toString();
 
 		ArrayList<String> allPredicates = new ArrayList<String>(Arrays.asList(
-				"Mean","Max","Min"));
+				"Mean","Max","Min", "Count"));
 		Map<String, String> predicateSqlMap = new HashMap<String,String>();
 		predicateSqlMap.put("Max", "max");
 		predicateSqlMap.put("Min", "min");
 		predicateSqlMap.put("Mean", "mean");
-
+		predicateSqlMap.put("Count", "count");
 
 		String aggMeasurement = null;
 		String aggMethod = null;
@@ -69,8 +69,13 @@ public class ExecutedMethodInterceptor {
 				break;
 			}
 		}
+		String curQuery = null;
+		if(aggMethod.equals("count")) {
+			curQuery = "select " + aggMethod + "(" + aggMeasurement + ")" + " from " + measurementName + " where ";
 
-		String curQuery = "select " + aggMethod + "("+aggMeasurement+") as " +aggMeasurement+ " from " + measurementName + " where ";
+		}else{
+			curQuery = "select " + aggMethod + "(" + aggMeasurement + ") as " + aggMeasurement + " from " + measurementName + " where ";
+		}
 		return curQuery;
 	}
 	//aggregateByAgeMeanTimeBeforeAndAgeGGroupByTimeOrderByTimeDesc('5m', '1111111')
@@ -108,9 +113,9 @@ public class ExecutedMethodInterceptor {
 		predicateSqlMap.put("OrderBy", "order by");
 		predicateSqlMap.put("Is", "=");
 		predicateSqlMap.put("Limit", "limit");
-		predicateSqlMap.put("Max", "max");
+/*		predicateSqlMap.put("Max", "max");
 		predicateSqlMap.put("Min", "min");
-		predicateSqlMap.put("Mean", "mean");
+		predicateSqlMap.put("Mean", "mean");*/
 		predicateSqlMap.put("GroupBy", "group by");
 
 

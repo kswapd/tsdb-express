@@ -1,5 +1,6 @@
 package com.dcits.repo.models;
 
+import com.dcits.tsdb.annotations.AggregatedColumn;
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
@@ -65,6 +66,10 @@ public class PercentMeasuerment {
 	@Column(name = "percent")
 	protected Double percent;
 
+
+	@AggregatedColumn(name = "count")
+	protected Long count;
+
 	public Long getTime() {
 		return time;
 	}
@@ -95,6 +100,7 @@ public class PercentMeasuerment {
 				"time=" + time +
 				", ipAddr='" + ipAddr + '\'' +
 				", percent=" + percent +
+				", count=" + count +
 				'}';
 	}
 }

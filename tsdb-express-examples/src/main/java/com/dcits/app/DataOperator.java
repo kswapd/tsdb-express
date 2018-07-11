@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import javax.annotation.Resource;
+import org.influxdb.dto.QueryResult;
 import org.springframework.stereotype.Component;
 
 /**
@@ -63,7 +64,8 @@ public class DataOperator {
 			//mem.setTime(String.valueOf(System.currentTimeMillis()));
 			//mem.setTime(String.valueOf(System.currentTimeMillis()));
 
-			mem.setTime(System.currentTimeMillis());
+			//mem.setTime(System.currentTimeMillis());
+			mem.setTime(System.nanoTime());
 			long before2Min = System.currentTimeMillis()  - 5 * 1000;		//utc time
 
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -71,6 +73,9 @@ public class DataOperator {
 
 			//System.out.println(TimeZone.getTimeZone("GMT").toString());
 			System.out.println(dateFormat.format(new Date(before2Min)));	//default local time zone time
+
+
+
 
 			memExpress.save(mem);
 			try {
@@ -91,21 +96,27 @@ public class DataOperator {
 				}
 
 				long num = memExpress.count();
-				//memExpress.queryBeans("select mean(val1) as val1, mean(val2) as val2 from memory where tim... group by time(30s),*");
 				System.out.println(String.format("%s,%d",  o.toString(),num));
+
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
 				//List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
 				//List<Memory> memList = memExpress.find("SELECT *  FROM memory WHERE ip_addr='192.168.1.100' order by time desc limit 3");
 				//List<Memory> memList = memExpress.findByIpAddrOrderByTimeDescLimit("192.168.1.100",5);
 				//List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 				//List<Memory> memList = memExpress.aggregateByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
+				//List<Memory> memList = memExpress.queryBeans("SELECT count(percent) FROM memory   where time > now()-1h group by time(5s),* order by time desc limit 3");
 
-				List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"time(10s),*", 5);
+				List<Memory> memList = memExpress.aggregateByPercentCountIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"time(10s),*", 5);
+				//QueryResult qr = memExpress.query("SELECT count(*) FROM memory  order by time desc group by time(5s),* limit 3");
+				//List<Memory> memList = memExpress.aggregateByPercentMeanIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min),"time(10s),*", 5);
+
+
 				//List<Memory> memList = memExpress.aggregateByPercentMeanTimeAfterOrIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit(String.valueOf(before2Min),"192.168.1.100", String.valueOf(before2Min),"5s", 5);
 				//List<Memory> memList = memExpress.findByTimeAfterOrIpAddrIsAndTimeBeforeOrderByTimeDescLimit(String.valueOf(before2Min),"192.168.1.100", String.valueOf(before2Min), 5);
 
 				//Memory memList = memExpress.findLastOne();
-				for (Memory m : memList) {
+				for (Memory m : memList)
+				{
 					System.out.println(m.toString());
 				}
 

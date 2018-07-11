@@ -11,6 +11,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -57,6 +58,18 @@ public class RepoInvocationHandler implements InvocationHandler {
 		return measurementName;
 	}
 
+	TimeUnit getTimeUnit(Class <?> clazz) {
+		TimeUnit tu = TimeUnit.MILLISECONDS;
+		Measurement measure = (Measurement) clazz.getAnnotation(Measurement.class);
+		if(measure != null){
+			tu = measure.timeUnit();
+		}
+
+		Objects.requireNonNull(tu, "Measurement.TimeUnit");
+		return tu;
+	}
+
+
 	private String getQueryMeasurementName(Method method)
 	{
 
@@ -69,6 +82,17 @@ public class RepoInvocationHandler implements InvocationHandler {
 		}
 		//if null, return null.
 		return queryMeasurementName;
+	}
+
+	TimeUnit getQueryTimeUnit(Method method) {
+		TimeUnit tu = TimeUnit.MILLISECONDS;
+		//Measurement measure = (Measurement) clazz.getAnnotation(Measurement.class);
+		QueryMeasurement measure = (QueryMeasurement) method.getAnnotation(QueryMeasurement.class);
+		if(measure != null){
+			tu = measure.timeUnit();
+		}
+		Objects.requireNonNull(tu, "Measurement.TimeUnit");
+		return tu;
 	}
 
 	/**
@@ -123,25 +147,27 @@ public class RepoInvocationHandler implements InvocationHandler {
 
 		}else if (methodName.contains("findBy") || methodName.contains("aggregateBy")) {
 				String useMeasurement = null;
-
+				TimeUnit tu = TimeUnit.MILLISECONDS;
 				//Use @QueryMeasurement of interface first. If this is null, use @Measuerment, if still null,
 				//use bean class name.
 				useMeasurement = getQueryMeasurementName(method);
+				tu = getQueryTimeUnit(method);
 				if(StringUtils.isEmpty(useMeasurement)) {
 					useMeasurement = getMeasurementName(innerClass);
+					tu = getTimeUnit(innerClass);
 
 				}
 
 
 				for (Method methods : repoClass.getDeclaredMethods()) {
-					if (methods.getName().equals("find")) {
+					if (methods.getName().equals("find") && methods.getParameterTypes().length == 2) {
 						baseQueryMethod = methods;
 						break;
 					}
 				}
 				Objects.requireNonNull(baseQueryMethod, "baseQueryMethod");
 				String sqlQuery = ExecutedMethodInterceptor.getInfluxDBSql(useMeasurement, method, args);
-				Object obj = baseQueryMethod.invoke(repoImpl, sqlQuery);
+				Object obj = baseQueryMethod.invoke(repoImpl, sqlQuery, tu);
 				return obj;
 
 		}else{
