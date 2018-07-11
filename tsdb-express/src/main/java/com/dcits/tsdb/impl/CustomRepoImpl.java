@@ -66,7 +66,6 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	@Value("${tsdb.datasource.maxConnectionSize}")
 	private int dataSourceMaxConnectionSize;
 
-	private static InfluxDBRepo influxDBengine = null;
 	private  InfluxDB influxDB = null;
 
 
