@@ -99,11 +99,16 @@ public class DataOperator {
 				long num = memExpress.count();
 				System.out.println(String.format("%s,%d",  o.toString(),num));
 
+
 				//List<Memory> memList = memExpress.queryBeans("SELECT * FROM memory WHERE time > now() - 5h order by time desc limit 3");
 				//List<Memory> memList = memExpress.find("SELECT mean(\"percent\") as \"percent\"  FROM memory WHERE time > now() - 50s and ip_addr='192.168.1.100' group by time(5s) limit 3");
 				//List<Memory> memList = memExpress.find("SELECT *  FROM memory WHERE ip_addr='192.168.1.100' order by time desc limit 3");
 				//List<Memory> memList = memExpress.findByOrderByTimeDescLimit(5);
-				List<Memory> memList = memExpress.findByIpAddrIsOrderByTimeDescLimit("192.168.1.100",5);
+				//List<Memory> memList = memExpress.findByLimit(5);
+				List<Memory> memList = memExpress.findBy();
+				//List<Memory> memList = memExpress.findByOrderByTimeDesc();
+
+				//List<Memory> memList = memExpress.findByIpAddrIsOrderByTimeDescLimit("192.168.1.100",5);
 				//List<Memory> memList = memExpress.findByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 				//List<Memory> memList = memExpress.aggregateByIpAddrAndTimeBeforeOrderByTimeDescLimit("192.168.1.100", String.valueOf(before2Min), 5);
 				//List<Memory> memList = memExpress.queryBeans("SELECT count(percent) FROM memory   where time > now()-1h group by time(5s),* order by time desc limit 3");
