@@ -9,6 +9,6 @@ import java.util.concurrent.TimeUnit;
  */
 
 //@Measurement(name = "memory")
-@Measurement(timeUnit = TimeUnit.NANOSECONDS)
+@Measurement(timeUnit = TimeUnit.MILLISECONDS)
 public class Memory extends PercentMeasuerment {
 }

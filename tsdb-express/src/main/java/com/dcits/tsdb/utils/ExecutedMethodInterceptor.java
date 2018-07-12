@@ -322,7 +322,7 @@ public class ExecutedMethodInterceptor {
 
 
 
-			String sql = "select * from " + measurementName + " where ";
+			String sql = "select * from " + measurementName;
 			//String methodName = method.getName();
 			//Objects.requireNonNull(method, "method");
 			String startStr = "findBy";
@@ -446,22 +446,29 @@ public class ExecutedMethodInterceptor {
 				lastSubPreds.add(0, new LogicPart(groupStr,null));
 			}
 
+			String[] splits = null;
+			// have condition
+			if(!StringUtils.isEmpty(originalSubPred)) {
+				splits = originalSubPred.split(andSplit + "|" + orSplit);
 
-			String[] splits = originalSubPred.split(andSplit+"|"+orSplit);
-			if(splits.length > 0){
-				//first element don't use "and" or "or" to join
-				allSubPreds.add(new LogicPart(splits[0], null));
-				for(int i = 1; i < splits.length; i ++){
-					int refIndex = originalSubPred.indexOf(splits[i]);
-					String dd = originalSubPred.substring(refIndex-3, refIndex);
-					if(originalSubPred.substring(refIndex-3, refIndex).equals(andSplit)){
-						allSubPreds.add(new LogicPart(splits[i], andSplit.toLowerCase()));
-					}else if(originalSubPred.substring(refIndex-2, refIndex).equals(orSplit)){
-						allSubPreds.add(new LogicPart(splits[i], orSplit.toLowerCase()));
+				if(splits != null && splits.length > 0){
+					//first element don't use "and" or "or" to join
+					allSubPreds.add(new LogicPart(splits[0], null));
+					for(int i = 1; i < splits.length; i ++){
+						int refIndex = originalSubPred.indexOf(splits[i]);
+						String dd = originalSubPred.substring(refIndex-3, refIndex);
+						if(originalSubPred.substring(refIndex-3, refIndex).equals(andSplit)){
+							allSubPreds.add(new LogicPart(splits[i], andSplit.toLowerCase()));
+						}else if(originalSubPred.substring(refIndex-2, refIndex).equals(orSplit)){
+							allSubPreds.add(new LogicPart(splits[i], orSplit.toLowerCase()));
+						}
 					}
+				}else{
+					allSubPreds.add(new LogicPart(originalSubPred, null));
 				}
-			}else{
-				allSubPreds.add(new LogicPart(originalSubPred, null));
+
+				sql = sql + " where ";
+
 			}
 
 			allSubPreds.addAll(lastSubPreds);

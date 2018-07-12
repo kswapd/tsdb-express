@@ -4,6 +4,9 @@ import com.dcits.tsdb.annotations.AggregatedColumn;
 import com.dcits.tsdb.annotations.Column;
 import com.dcits.tsdb.annotations.Measurement;
 import com.dcits.tsdb.annotations.Tag;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by kongxiangwen on 6/26/18 w:26.
@@ -96,8 +99,16 @@ public class PercentMeasuerment {
 
 	@Override
 	public String toString() {
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+		//System.out.println(TimeZone.getTimeZone("GMT").toString());
+		String strTime = dateFormat.format(new Date(time));
+
+
 		return "PercentMeasuerment{" +
-				"time=" + time +
+				"time=" + strTime +":"+time+
 				", ipAddr='" + ipAddr + '\'' +
 				", percent=" + percent +
 				", count=" + count +

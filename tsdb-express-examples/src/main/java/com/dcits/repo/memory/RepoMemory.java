@@ -30,5 +30,5 @@ public interface RepoMemory extends CustomRepo<Memory> {
 	public List<Memory> findByIpAddrIsOrderByTimeDescLimit(String ipAddr, int limit);
 
 	public List<Memory>    aggregateByPercentCountIpAddrIsAndTimeBeforeGroupByOrderByTimeDescLimit(String ip, String time,String groups, int limit);
-
+	public List<Memory>     findByOrderByTimeDescLimit(int limit);
 }
