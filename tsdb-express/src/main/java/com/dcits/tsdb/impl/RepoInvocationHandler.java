@@ -153,7 +153,9 @@ public class RepoInvocationHandler implements InvocationHandler {
 				}
 				Objects.requireNonNull(baseQueryMethod, "baseQueryMethod");
 				String sqlQuery = ExecutedMethodInterceptor.getInfluxDBSql(useMeasurement, method, args);
+
 				Object obj = baseQueryMethod.invoke(repoImpl, sqlQuery, tu);
+
 				return obj;
 
 		}else{

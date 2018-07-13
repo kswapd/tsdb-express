@@ -68,15 +68,16 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 	private  InfluxDB influxDB = null;
 
-
-	//@Resource(name="influxDBWrapper")
 	private InfluxDBResultMapper influxDBMapper;
 
 	private static CustomRepoImpl inst = null;
-	private Class<T> innerClass;
+
+
+	//to avoid concurrent access problem
+	private ThreadLocal<Class<T>> threadLocalInnerClass;
 
 	public void setInnerClass(Class <T> cls){
-		innerClass = cls;
+		threadLocalInnerClass.set(cls);
 	}
 
 	private static int sCurRepoChooseId = 0;
@@ -208,44 +209,14 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 			influxDB.enableGzip();
 		}
 
-	}
 
-	@PostConstruct
-	public void initRef()
-	{
+		threadLocalInnerClass = new ThreadLocal<Class<T>>();
 
 
-		influxDBMapper = new InfluxDBResultMapper();
-
-
-		Properties prop = tryLoadProps();
-		//System.out.println("=====++"+prop.getProperty("influxdb.dbName"));
-
-
-		this.address = prop.getProperty("influxdb.address");
-		this.user = prop.getProperty("influxdb.user", "root");
-		this.password = prop.getProperty("influxdb.password", "root");
-		this.dbName = prop.getProperty("influxdb.dbName");
-		this.rpName = prop.getProperty("influxdb.rpName");
-		this.maxBatchSize = Integer.parseInt(prop.getProperty("influxdb.maxBatchSize", "10"));
-		this.maxBatchInterval = Integer.parseInt(prop.getProperty("influxdb.maxBatchInterval", "30000"));
-		this.enableGzip = Boolean.parseBoolean(prop.getProperty("influxdb.enableGzip", "false"));
-
-		this.dataSourceType = prop.getProperty("tsdb.datasource.type", "influxDB");
-		this.dataSourceMaxConnectionSize = Integer.parseInt(prop.getProperty("tsdb.datasource.maxSize", "1"));
-		if(!this.dataSourceType.equals("influxDB")){
-			throw new IllegalArgumentException("Invalid datasource type:"+this.dataSourceType);
-		}
-
-		System.out.println("connecting influxDB addr:" + address);
-		influxDB = InfluxDBFactory.connect(address, user, password);
-		influxDB.createDatabase(dbName);
-		influxDB.enableBatch(maxBatchSize, maxBatchInterval, TimeUnit.MILLISECONDS);
-		if(this.enableGzip) {
-			influxDB.enableGzip();
-		}
 
 	}
+
+
 	@Deprecated
 	@Override
 	public void write(Point data)
@@ -261,7 +232,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	}
 	@Deprecated
 	@Override
-	public QueryResult query(String queryLang)
+	public synchronized QueryResult query(String queryLang)
 	{
 
 
@@ -272,7 +243,7 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 	@Deprecated
 	@Override
-	public QueryResult query(String queryLang, TimeUnit tu)
+	public synchronized QueryResult query(String queryLang, TimeUnit tu)
 	{
 
 
@@ -283,16 +254,37 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 
 	@Deprecated
 	@Override
-	public List<T> queryBeans(String queryLang)
+	public  synchronized List<T> queryBeans(String queryLang)
 	{
+
+
 
 
 		QueryResult queryResult = query(queryLang);
 		//InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
 		List<T> pojoList = null;
 
+		Class<T> clazz = threadLocalInnerClass.get();
 		try {
-			pojoList = influxDBMapper.toPOJO(queryResult, innerClass);
+			pojoList = influxDBMapper.toPOJO(queryResult, clazz);
+		}
+		catch (RuntimeException e) {
+
+		}
+
+		return pojoList;
+	}
+
+
+	@Override
+	public synchronized List<T> find(String queryLang)
+	{
+
+		List<T> pojoList = null;
+		Class<T> clazz = threadLocalInnerClass.get();
+		QueryResult queryResult = query(queryLang);
+		try {
+			pojoList = influxDBMapper.toPOJO(queryResult, clazz);
 		}
 		catch (RuntimeException e){
 
@@ -302,38 +294,16 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	}
 
 
+
 	@Override
-	public List<T> find(String queryLang)
+	public synchronized List<T> find(String queryLang, TimeUnit tu)
 	{
 
-
-		QueryResult queryResult = query(queryLang);
-		//InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
 		List<T> pojoList = null;
-
-		try {
-			pojoList = influxDBMapper.toPOJO(queryResult, innerClass);
-		}
-		catch (RuntimeException e){
-
-		}
-
-		return pojoList;
-	}
-
-
-
-	@Override
-	public List<T> find(String queryLang, TimeUnit tu)
-	{
-
-
+		Class<T> clazz = threadLocalInnerClass.get();
 		QueryResult queryResult = query(queryLang, tu);
-		//InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
-		List<T> pojoList = null;
-
 		try {
-			pojoList = influxDBMapper.toPOJO(queryResult, innerClass);
+			pojoList = influxDBMapper.toPOJO(queryResult, clazz);
 		}
 		catch (RuntimeException e){
 
@@ -372,9 +342,10 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	 * @param <T>
 	 */
 	@Override
-	public  T save(T pojo)
+	public  synchronized  T save(T pojo)
 	{
 		Point data = null;
+
 		try {
 			data = influxDBMapper.pojoToPoint(pojo);
 		}
@@ -390,12 +361,12 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	}
 
 	@Override
-	public T findLastOne()
+	public synchronized T findLastOne()
 	{
 
 		T ret = null;
-
-		String measurementName = MeasurementUtils.getMeasurementName(innerClass);
+		Class<T> clazz = threadLocalInnerClass.get();
+		String measurementName = MeasurementUtils.getMeasurementName(clazz);
 		String query = "select * from " + measurementName + " order by time desc limit 1";
 		List<T> li = queryBeans(query);
 		if(li != null && li.size() > 0){
@@ -405,10 +376,11 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 	}
 
 	@Override
-	public long count() {
+	public synchronized long count() {
 
 		long num = 0;
-		String measurementName = MeasurementUtils.getMeasurementName(innerClass);
+		Class<T> clazz = threadLocalInnerClass.get();
+		String measurementName = MeasurementUtils.getMeasurementName(clazz);
 		String queryLang = "select count(*) from " + measurementName;
 		QueryResult queryResult = query(queryLang);
 
@@ -422,11 +394,6 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		return num;
 	}
 
-
-	public <T> List<T> findByTime(String queryLang, final Class<T> clazz)
-	{
-		return null;
-	}
 
 
 
