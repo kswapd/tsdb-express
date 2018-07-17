@@ -375,8 +375,9 @@ public class InfluxDBResultMapper {
 		//if measurment contains retention policy, split it by '.' and use
 		Point.Builder pointBuilder = null;
 		String measurementName = MeasurementUtils.getMeasurementName(clazzOriginal);
-		String splitRegex = ".";
-		if(measurementName.contains(splitRegex)){
+		String spot = ".";
+		String splitRegex = "\\.";
+		if(measurementName.contains(spot)){
 			String[] measurementNameArr = measurementName.split(splitRegex);
 			//rp_3d.cpu
 			if(measurementNameArr.length == 2) {

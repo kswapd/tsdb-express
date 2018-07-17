@@ -32,6 +32,8 @@ public class DataOperator {
 	Cpu cpu = new Cpu();
 
 	public void Oper() {
+
+
 		boolean isStart = true;
 		Long curMilliTime = System.currentTimeMillis();
 		long saveNum = 0;
@@ -49,7 +51,7 @@ public class DataOperator {
 
 
 
-			cpu.setHost("kxw_host");
+			/*cpu.setHost("kxw_host");
 			cpu.setIdle(90 + randIdle);
 			cpu.setUser(9 + randUser);
 			cpu.setSystem(1 + randSys);
@@ -64,7 +66,7 @@ public class DataOperator {
 
 
 			diskExpress.save(ds);
-
+*/
 
 			Memory mem = new Memory();
 			mem.setIpAddr("192.168.1.100");
