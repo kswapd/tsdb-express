@@ -15,9 +15,10 @@ public class Application {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"tsdb.xml"});
 		context.start();
 		DataOperator oper  = (DataOperator)context.getBean("dataOperator");
-		oper.Oper();
+		//oper.Oper();
 
-		//oper.PerformTest();
+		oper.PerformTest();
+		//oper.PerformTradeTest();
 
 	}
 

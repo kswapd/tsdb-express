@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -385,13 +386,18 @@ public class CustomRepoImpl <T> implements CustomRepo<T> {
 		String queryLang = "select count(*) from " + measurementName;
 		QueryResult queryResult = query(queryLang);
 
-		List<List<Object>> obj = queryResult.getResults().get(0).getSeries().get(0).getValues();
-		//get(0) is time String
-		Object objValue = obj.get(0).get(1);
-		/*String strNum = String.valueOf(objValue.get(1));
-		Double dnum = Double.parseDouble(strNum);
-		num = dnum.longValue();*/
-		num = ((Double)objValue).longValue();
+		try {
+			List<List<Object>> obj = queryResult.getResults().get(0).getSeries().get(0).getValues();
+			//get(0) is time String
+			int size = obj.get(0).size();
+			Object objValue = obj.get(0).get(size-1);
+			/*String strNum = String.valueOf(objValue.get(1));
+			Double dnum = Double.parseDouble(strNum);
+			num = dnum.longValue();*/
+			num = ((Double) objValue).longValue();
+		}catch (Exception e){
+			num = 0;
+		}
 		return num;
 	}
 
