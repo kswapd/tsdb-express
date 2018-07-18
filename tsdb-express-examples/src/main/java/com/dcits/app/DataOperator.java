@@ -278,6 +278,7 @@ public class DataOperator {
 		long saveNum = 0;
 		Long startStat = System.currentTimeMillis();
 		boolean isFind = false;
+		TradeInfo trade = new TradeInfo();
 		while (isStart) {
 
 
@@ -290,7 +291,7 @@ public class DataOperator {
 
 
 
-			TradeInfo trade = new TradeInfo();
+
 
 			trade.setBranch("branch-"+saveNum);
 			trade.setFrom("from-"+saveNum);

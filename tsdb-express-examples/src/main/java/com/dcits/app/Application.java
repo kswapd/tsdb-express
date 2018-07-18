@@ -17,8 +17,8 @@ public class Application {
 		DataOperator oper  = (DataOperator)context.getBean("dataOperator");
 		//oper.Oper();
 
-		oper.PerformTest();
-		//oper.PerformTradeTest();
+		//oper.PerformTest();
+		oper.PerformTradeTest();
 
 	}
 
