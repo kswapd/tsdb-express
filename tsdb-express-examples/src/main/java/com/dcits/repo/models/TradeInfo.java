@@ -10,7 +10,7 @@ import com.dcits.tsdb.annotations.Tag;
 
 
 
-@Measurement(name = "rp_1y.trade_test2")
+@Measurement(name = "rp_3h.trade_test2")
 public class TradeInfo {
 
 	@Tag(name = "time")

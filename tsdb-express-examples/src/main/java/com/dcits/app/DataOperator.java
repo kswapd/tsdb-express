@@ -12,6 +12,7 @@ import com.dcits.tsdb.annotations.EnableRepoInterfaceScan;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.TimeZone;
 import javax.annotation.Resource;
 import org.influxdb.dto.QueryResult;
@@ -195,6 +196,7 @@ public class DataOperator {
 		long saveNum = 0;
 		Long startStat = System.currentTimeMillis();
 		boolean isFind = false;
+
 		while (isStart) {
 
 
@@ -279,6 +281,8 @@ public class DataOperator {
 		Long startStat = System.currentTimeMillis();
 		boolean isFind = false;
 		TradeInfo trade = new TradeInfo();
+		Random a = new Random();
+		Random b = new Random();
 		while (isStart) {
 
 
@@ -293,8 +297,13 @@ public class DataOperator {
 
 
 
-			trade.setBranch("branch-"+saveNum);
+
+			trade.setBranch("branch-"+ saveNum);
 			trade.setFrom("from-"+saveNum);
+
+			/*trade.setBranch("branch-"+ a.nextInt(10000));
+			trade.setFrom("from-"+b.nextInt(1000));
+*/
 			trade.setHost("host-"+saveNum);
 			trade.setSeqNo("seqno-"+saveNum);
 			trade.setStatus("status-"+saveNum);
