@@ -6,7 +6,7 @@
 
     <groupId>dcits</groupId>
     <artifactId>tsdb</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <name>influxdb root repository</name>
     <description>Java JPA interface to access the InfluxDB REST API</description>
