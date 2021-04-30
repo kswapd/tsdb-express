@@ -145,8 +145,15 @@ public class RepoInvocationHandler implements InvocationHandler {
 				}
 
 
-				for (Method methods : repoClass.getDeclaredMethods()) {
+				/*for (Method methods : repoClass.getDeclaredMethods()) {
 					if (methods.getName().equals("find") && methods.getParameterTypes().length == 2) {
+						baseQueryMethod = methods;
+						break;
+					}
+				}*/
+				for (Method methods : repoClass.getDeclaredMethods()) {
+					if (methods.getName().equals("find") && methods.getParameterTypes().length == 2
+							&& methods.getParameterTypes()[1].equals(TimeUnit.class)) {
 						baseQueryMethod = methods;
 						break;
 					}
