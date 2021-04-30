@@ -35,11 +35,12 @@
         <url>https://gitee.com/kswapd/tsdb-express.git</url>
     </scm>
 
+         
     <developers>
         <developer>
             <id>kxw</id>
             <name>Kongxiangwen</name>
-            <email>kongxw@dcits.com</email>
+             <email>konsunwin@163.com</email>
         </developer>
     </developers>
 
